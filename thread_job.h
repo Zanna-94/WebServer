@@ -6,8 +6,6 @@
 
 #define FIELD_LEN   32
 
-#endif //WEBSERVER_SERVER_JOB_H
-
 typedef struct {
     pthread_t tid;                /* thread id */
     int sock;                     /* connection socket */
@@ -26,3 +24,5 @@ typedef struct converted_image {
 void *connection_manager(void *);
 
 float find_quality_factor(char *, char *);
+
+#endif //WEBSERVER_SERVER_JOB_H

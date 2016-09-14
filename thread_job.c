@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <lru-cache.h>
 
 
 /*
@@ -58,9 +59,8 @@ int convert_image(converted_image *img) {
 
     MagickWand *m_wand = NULL;
     int fd;
-    char *out_path;
 
-    strcpy(img->temp_file,"./cache/image.XXXXXX");
+    strcpy(img->temp_file, "./cache/image.XXXXXX");
 
     MagickWandGenesis();
 
@@ -141,7 +141,7 @@ void send_file(int fd, int sock) {
     content_lenght = (int) st.st_size;
 
     /* create http header*/
-    sprintf(response, "%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 202 OK", "Connection: close", "Content-Length",
+    sprintf(response, "%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK", "Connection: close", "Content-Length",
             content_lenght);
 
     /* map file */
@@ -161,10 +161,10 @@ void send_file(int fd, int sock) {
         pthread_exit(NULL);
     }
 
-    if (munmap(mapped_file, (size_t) content_lenght) == -1) {
-        perror("munmap");
-        pthread_exit(NULL);
-    }
+//    if (munmap(mapped_file, (size_t) content_lenght) == -1) {
+//        perror("munmap");
+//        pthread_exit(NULL);
+//    }
 
 }
 
@@ -174,18 +174,24 @@ void send_file(int fd, int sock) {
 void get_response(converted_image *img, int socket) {
 
     int fd;
+    char *p, *filename, path[MAXLINE];
 
-    if (is_image(img->name)) {
+    p = find_in_cache(img);
+    if (p == NULL) {
+        fd = convert_image(img);
+        printf("image not found in cache: %s\n", img->temp_file);
+        put_in_cache(img);
+    } else {
+        strcpy(img->temp_file, p);
+        printf("image found in cache: %s\n", img->temp_file);
 
-
-//        img->temp_file = find_in_cache(img);
-//        if (img->temp_file == NULL) {
-            fd = convert_image(img);
-//            put_in_cache(img);
-//        } else
-//            fd = open_file(img->temp_file);
-
-    } else fd = open_file(img->name);
+        filename = basename(img->temp_file);
+        strcpy(path, CACHE);
+        strcat(path, "/");
+        strcat(path, filename);
+        printf("%s\n", path);
+        fd = open_file(path);
+    }
 
     send_file(fd, socket);
 }

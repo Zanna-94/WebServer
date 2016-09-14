@@ -12,6 +12,7 @@
 #define MAX_THREAD_N    128
 
 #define HOME            "/home/emanuele/Scrivania/WebServer/image"
+#define CACHE           "/home/emanuele/Scrivania/WebServer/cache"
 
 static pid_t *pids;
 

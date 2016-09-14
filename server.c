@@ -3,6 +3,7 @@
 #include <signal.h>
 #include "lib/lock_fcntl.h"
 #include <netinet/in.h>
+#include <lru-cache.h>
 #include "thread_job.h"
 #include "sig_handler.h"
 
@@ -58,6 +59,10 @@ void child_main(int i, int listensd) {
 
     if ((cliaddr = (struct sockaddr_in *) malloc(sizeof(struct sockaddr_in))) == NULL) {
         fprintf(stderr, "malloc return null");
+        exit(EXIT_FAILURE);
+    }
+
+    if(get_cache() == NULL){
         exit(EXIT_FAILURE);
     }
 

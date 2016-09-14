@@ -16,9 +16,9 @@ int open_file(char *filename) {
     if (fd == -1 || errno != 0) {
         perror("open");
         pthread_exit(NULL);
-
-        return fd;
     }
+
+    return fd;
 }
 
 /*
