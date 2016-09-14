@@ -1,0 +1,331 @@
+#include <MagickWand/MagickWand.h>
+#include "basic.h"
+#include <http_parser.h>
+#include "thread_job.h"
+#include "lib/io.h"
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+
+
+/*
+ * Parse the header's field "Accept" of http message to find quality factor
+ * for "Image/*"
+ * @param accept field Accept in http message*s header
+ * @return quality factor for image/jpeg format
+ */
+float find_quality_factor(char *accept, char *image_extension) {
+
+    char *token, *field, *ptr;
+    float quality_factor = 1;
+
+    int len = (int) strlen(image_extension);
+
+    field = malloc(sizeof("image/") + len);
+    if (field == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        pthread_exit(NULL);
+    }
+
+    strcat(field, "image/");
+    strcat(field, image_extension);
+
+    if ((ptr = strstr(accept, field)) != NULL) {
+        token = ptr + strlen(field) + 1;
+    } else if ((ptr = strstr(accept, "*/*")) != NULL) {
+        token = ptr + strlen("*/*") + 1;
+    } else return quality_factor;
+
+    removeSpaces(token);
+    if ((token = strstr(token, "q=")) != NULL) {
+        token += strlen("q=");
+
+        errno = 0;
+        quality_factor = strtof(token, NULL);
+        if (errno != 0) {
+            perror("strtof");
+            pthread_exit(NULL);
+        }
+    }
+
+//    printf("%s: %.2f\n", "quality factor found", quality_factor);
+    return quality_factor;
+}
+
+/*
+ *
+ * @param path image path
+ * @param quality_factor new quality compression factor for the image
+ * @param out output path
+ * @return file descriptor for image saved in temporary file
+ */
+int convert_image(image *img) {
+
+    MagickWand *m_wand = NULL;
+    int fd;
+    char *out_path;
+
+    img->temp_file = strdup("./cache/image.XXXXXX");
+
+    MagickWandGenesis();
+
+    m_wand = NewMagickWand();
+
+    // Read the image
+    MagickReadImage(m_wand, img->filename);
+
+    // Set the compression quality to 95 (high quality = low compression)
+    MagickSetImageCompressionQuality(m_wand, (const size_t) img->quality_factor * 100);
+
+    /* Write the new image on temporary file*/
+    errno = 0;
+    fd = mkostemp(img->temp_file, 666);
+    if (fd == -1 || errno != 0) {
+        perror("mkostemp");
+        pthread_exit(NULL);
+    }
+
+    MagickWriteImage(m_wand, img->temp_file);
+
+    /* Clean up */
+    if (m_wand)m_wand = DestroyMagickWand(m_wand);
+
+    MagickWandTerminus();
+
+    return fd;
+}
+
+/*
+ * send http message with error code 404 (file not found)
+ */
+void send_not_found(int sock) {
+
+    char *response;
+    int sent;
+
+    response = malloc(MSG_SIZE);
+    if (response == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        pthread_exit(NULL);
+    }
+
+    sprintf(response, "%s\r\n%s\r\n\r\n", "HTTP/1.1 404 Not Found", "Connection: close");
+    sent = (int) writen(sock, response, strlen(response));
+
+    if (sent <= 0) {
+        fprintf(stderr, "error in writen");
+        pthread_exit(NULL);
+    }
+}
+
+/*
+ * Send an http message with a file as body.
+ * @fd file descriptor for the file to send
+ * @sock connection socket with the client node
+ */
+void send_file(int fd, int sock) {
+
+    struct stat st;                 /* strcture to discover file's size */
+    char *response, *mapped_file;   /* memory where map the file */
+    int sent, content_lenght, s;
+
+    /* allocate memory for response message */
+    response = malloc(MSG_SIZE);
+    if (response == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        pthread_exit(NULL);
+    }
+
+    /* get image size */
+    errno = 0;
+    s = fstat(fd, &st);
+    if (s == -1 || errno != 0) {
+        perror("fstat");
+        pthread_exit(NULL);
+    }
+    content_lenght = (int) st.st_size;
+
+    /* create http header*/
+    sprintf(response, "%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 202 OK", "Connection: close", "Content-Length",
+            content_lenght);
+
+    /* map file */
+    mapped_file = mmap(NULL, (size_t) content_lenght, PROT_READ, MAP_PRIVATE, fd, 0);
+
+    /* send headers*/
+    sent = (int) writen(sock, response, strlen(response));
+    if (sent <= 0) {
+        fprintf(stderr, "error in writen");
+        pthread_exit(NULL);
+    }
+
+    /* send file as body */
+    sent = (int) writen(sock, mapped_file, (size_t) content_lenght);
+    if (sent != content_lenght) {
+        fprintf(stderr, "error in writen");
+        pthread_exit(NULL);
+    }
+
+    if (munmap(mapped_file, (size_t) content_lenght) == -1) {
+        perror("munmap");
+        pthread_exit(NULL);
+    }
+
+}
+
+/*
+ * Send http response
+ */
+void get_response(image *img, int socket) {
+
+    int fd;
+
+    if (is_image(img->filename)) {
+
+
+//        img->temp_file = find_in_cache(img);
+//        if (img->temp_file == NULL) {
+            fd = convert_image(img);
+//            put_in_cache(img);
+//        } else
+//            fd = open_file(img->temp_file);
+
+    } else fd = open_file(img->filename);
+
+    send_file(fd, socket);
+}
+
+/*
+ *
+ * @param data thread custom data
+ * @param http_msg strcture representing http message
+ * @param recved #byte of the http message read from socket
+ */
+http_parser *parse(data_t *data, char *http_msg, size_t recved) {
+
+    http_parser_settings settings;
+    http_parser *parser = malloc(sizeof(http_parser));
+    if (parser == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        exit(EXIT_FAILURE);
+    }
+
+    /* setting callbacks */
+    settings.on_header_field = on_header_field;
+    settings.on_header_value = on_header_value;
+    settings.on_url = on_url;
+
+    /* set message type (HTTP_REQUEST) */
+    http_parser_init(parser, HTTP_REQUEST);
+    parser->data = data;
+
+    /* parse */
+    parser->http_errno = 0;
+    http_parser_execute(parser, &settings, http_msg, recved);
+    if (parser->http_errno != 0) {
+        fprintf(stderr, "http_parser_execute error");
+        pthread_exit(NULL);
+    }
+
+    return parser;
+}
+
+/*
+ * Manage the connection with a client.
+ */
+void manage_request(data_t *data, http_parser *parser) {
+
+    char *filename, *format;
+
+    image *img = malloc(sizeof(image));
+    if (img == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        pthread_exit(NULL);
+    }
+
+    http_message *message = data->msg;
+    filename = message->request_path;
+
+    if (exist(filename)) {
+
+        format = get_filename_ext(filename);
+
+        img->quality_factor = find_quality_factor(message->accept, format);
+        img->filename = strdup(filename);
+        get_response(img, data->sock);
+
+    } else send_not_found(data->sock);
+
+
+}
+
+void close_connection(int sock) {
+
+    int closed;
+    closed = close(sock);
+
+    if (closed == -1) {
+        perror("close");
+        pthread_exit(NULL);
+    }
+
+}
+
+/*
+ * Receive the request message and parses it.
+ */
+void *connection_manager(void *arg) {
+
+    data_t *data = arg;
+    http_parser *parser;
+    int nread, n;
+    fd_set rset;
+    char *raw_msg;
+    struct timeval *timeout;
+
+    timeout = malloc(sizeof(struct timeval));
+    if (timeout == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        pthread_exit(NULL);
+    }
+
+    timeout->tv_sec = TIMEOUT;
+    FD_ZERO(&rset);
+    FD_SET(data->sock, &rset);
+
+    printf("[+] Connection opened\n");
+
+    do {
+
+        /* if no message are received in timeout seconds, the connection is closed */
+        n = select(data->sock + 1, &rset, NULL, NULL, timeout);
+        if (n == 0) {
+            close_connection(data->sock);
+            pthread_exit(EXIT_SUCCESS);
+        }
+
+        /* read http header from connsd socket and store it in msg buffer */
+        nread = receive_msg_h(data->sock, (void **) &raw_msg);
+        data->msg->raw = raw_msg;
+
+        /* parsing http header */
+        parser = parse(data, raw_msg, (size_t) nread);
+
+        /* For HTTP/1.1 persistent connection is the default behavior*/
+        if (parser->type == HTTP_REQUEST)
+            manage_request(data, parser);
+
+
+        free(data->msg);
+
+    } while (http_should_keep_alive(parser));
+
+
+    printf("[+] Close connection\n");
+
+}
+
+
+
+
+
