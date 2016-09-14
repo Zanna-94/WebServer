@@ -11,5 +11,7 @@
 #define TIMEOUT         5
 #define MAX_THREAD_N    128
 
+#define HOME            "/home/emanuele/Scrivania/WebServer/image"
+
 static pid_t *pids;
 

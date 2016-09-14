@@ -16,16 +16,11 @@
  */
 float find_quality_factor(char *accept, char *image_extension) {
 
-    char *token, *field, *ptr;
+
+    char *token, *ptr, field[MAXLINE];
     float quality_factor = 1;
 
     int len = (int) strlen(image_extension);
-
-    field = malloc(sizeof("image/") + len);
-    if (field == NULL) {
-        fprintf(stderr, "error in memory allocation");
-        pthread_exit(NULL);
-    }
 
     strcat(field, "image/");
     strcat(field, image_extension);
@@ -59,20 +54,20 @@ float find_quality_factor(char *accept, char *image_extension) {
  * @param out output path
  * @return file descriptor for image saved in temporary file
  */
-int convert_image(image *img) {
+int convert_image(converted_image *img) {
 
     MagickWand *m_wand = NULL;
     int fd;
     char *out_path;
 
-    img->temp_file = strdup("./cache/image.XXXXXX");
+    strcpy(img->temp_file,"./cache/image.XXXXXX");
 
     MagickWandGenesis();
 
     m_wand = NewMagickWand();
 
     // Read the image
-    MagickReadImage(m_wand, img->filename);
+    MagickReadImage(m_wand, img->name);
 
     // Set the compression quality to 95 (high quality = low compression)
     MagickSetImageCompressionQuality(m_wand, (const size_t) img->quality_factor * 100);
@@ -176,11 +171,11 @@ void send_file(int fd, int sock) {
 /*
  * Send http response
  */
-void get_response(image *img, int socket) {
+void get_response(converted_image *img, int socket) {
 
     int fd;
 
-    if (is_image(img->filename)) {
+    if (is_image(img->name)) {
 
 
 //        img->temp_file = find_in_cache(img);
@@ -190,7 +185,7 @@ void get_response(image *img, int socket) {
 //        } else
 //            fd = open_file(img->temp_file);
 
-    } else fd = open_file(img->filename);
+    } else fd = open_file(img->name);
 
     send_file(fd, socket);
 }
@@ -237,7 +232,7 @@ void manage_request(data_t *data, http_parser *parser) {
 
     char *filename, *format;
 
-    image *img = malloc(sizeof(image));
+    converted_image *img = malloc(sizeof(converted_image));
     if (img == NULL) {
         fprintf(stderr, "error in memory allocation");
         pthread_exit(NULL);
@@ -246,12 +241,14 @@ void manage_request(data_t *data, http_parser *parser) {
     http_message *message = data->msg;
     filename = message->request_path;
 
-    if (exist(filename)) {
+
+    strcpy(img->name, HOME);
+    strcat(img->name, filename);
+    if (exist(img->name)) {
 
         format = get_filename_ext(filename);
-
         img->quality_factor = find_quality_factor(message->accept, format);
-        img->filename = strdup(filename);
+
         get_response(img, data->sock);
 
     } else send_not_found(data->sock);

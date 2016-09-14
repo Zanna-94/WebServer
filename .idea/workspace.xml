@@ -59,7 +59,12 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="56211d24-bdb9-4a78-a72d-34da489887f0" name="Default" comment="" />
+    <list default="true" id="56211d24-bdb9-4a78-a72d-34da489887f0" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/WebServer.iml" afterPath="$PROJECT_DIR$/.idea/WebServer.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/basic.h" afterPath="$PROJECT_DIR$/basic.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/thread_job.c" afterPath="$PROJECT_DIR$/thread_job.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/thread_job.h" afterPath="$PROJECT_DIR$/thread_job.h" />
+    </list>
     <ignored path="WebServer.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -81,50 +86,30 @@
     <favorites_list name="WebServer" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="thread_job.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/thread_job.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="191" column="0" selection-start-line="191" selection-start-column="0" selection-end-line="191" selection-end-column="0" />
+            <state relative-caret-position="493">
+              <caret line="189" column="26" selection-start-line="189" selection-start-column="26" selection-end-line="189" selection-end-column="26" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
                 <element signature="e#188#390#0" expanded="false" />
-                <element signature="e#188#1384#0" expanded="false" />
-                <element signature="e#1386#1578#0" expanded="false" />
-                <element signature="e#1386#2377#0" expanded="false" />
-                <element signature="e#2379#2443#0" expanded="false" />
-                <element signature="e#2379#2913#0" expanded="false" />
-                <element signature="e#2915#3058#0" expanded="false" />
-                <element signature="e#2915#4455#0" expanded="false" />
-                <element signature="e#4457#4485#0" expanded="false" />
-                <element signature="e#4875#5032#0" expanded="false" />
-                <element signature="e#4875#5823#0" expanded="false" />
-                <element signature="e#5825#5871#0" expanded="false" />
-                <element signature="e#6467#6630#0" expanded="false" />
-                <element signature="e#6632#6684#0" expanded="false" />
-                <element signature="e#6632#7955#0" expanded="false" />
+                <element signature="e#188#1234#0" expanded="false" />
+                <element signature="e#1236#1428#0" expanded="false" />
+                <element signature="e#2233#2297#0" expanded="false" />
+                <element signature="e#2233#2767#0" expanded="false" />
+                <element signature="e#2769#2912#0" expanded="false" />
+                <element signature="e#2769#4309#0" expanded="false" />
+                <element signature="e#4311#4339#0" expanded="false" />
+                <element signature="e#4731#4888#0" expanded="false" />
+                <element signature="e#4731#5679#0" expanded="false" />
+                <element signature="e#5681#5727#0" expanded="false" />
+                <element signature="e#5681#6363#0" expanded="false" />
+                <element signature="e#6365#6528#0" expanded="false" />
+                <element signature="e#6530#6582#0" expanded="false" />
+                <element signature="e#6530#7853#0" expanded="false" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lru-cache.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/lru-cache.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lru-cache.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/lru-cache.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -132,8 +117,8 @@
       <file leaf-file-name="thread_job.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/thread_job.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="22" column="20" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
+            <state relative-caret-position="450">
+              <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -141,10 +126,12 @@
       </file>
     </leaf>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/basic.h" />
         <option value="$PROJECT_DIR$/prefork_server_flock.c" />
         <option value="$PROJECT_DIR$/prefork_child_flock.c" />
         <option value="$PROJECT_DIR$/prefork_io.c" />
@@ -186,6 +173,7 @@
         <option value="$PROJECT_DIR$/lib/lru-cache.c" />
         <option value="$PROJECT_DIR$/lib/lru-cache.h" />
         <option value="$PROJECT_DIR$/server.c" />
+        <option value="$PROJECT_DIR$/basic.h" />
         <option value="$PROJECT_DIR$/thread_job.h" />
         <option value="$PROJECT_DIR$/thread_job.c" />
       </list>
@@ -513,11 +501,12 @@
       <workItem from="1473428439369" duration="12809000" />
       <workItem from="1473514707116" duration="9227000" />
       <workItem from="1473857684629" duration="2142000" />
+      <workItem from="1473866248917" duration="292000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="212006000" />
+    <option name="totallyTimeSpent" value="212298000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -533,13 +522,13 @@
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287037" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.49074075" sideWeight="0.4969697" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.49071208" sideWeight="0.4969697" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4814815" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39969134" sideWeight="0.50454545" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4027778" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4024768" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.63271606" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2159091" sideWeight="0.49382716" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2189394" sideWeight="0.49382716" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TeamCity" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287037" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24924242" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -599,7 +588,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server_child.c" />
     <entry file="file://$PROJECT_DIR$/web_child.c" />
     <entry file="file://$PROJECT_DIR$/header/lock.h" />
     <entry file="file://$PROJECT_DIR$/lib/lock_fcntl.c">
@@ -697,7 +685,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
           <caret line="13" column="21" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -731,7 +718,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="846">
           <caret line="51" column="38" selection-start-line="51" selection-start-column="38" selection-end-line="51" selection-end-column="38" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -765,7 +751,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -776,21 +761,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/basic.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/io.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="4" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -808,7 +782,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -824,14 +797,6 @@
             <element signature="e#2203#2431#0" expanded="false" />
             <element signature="e#2433#4379#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/thread_job.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="22" column="20" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -851,27 +816,51 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/basic.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="13" column="66" selection-start-line="13" selection-start-column="66" selection-end-line="13" selection-end-column="66" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/thread_job.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/thread_job.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="191" column="0" selection-start-line="191" selection-start-column="0" selection-end-line="191" selection-end-column="0" />
+        <state relative-caret-position="493">
+          <caret line="189" column="26" selection-start-line="189" selection-start-column="26" selection-end-line="189" selection-end-column="26" />
           <folding>
             <element signature="e#0#34#0" expanded="true" />
             <element signature="e#188#390#0" expanded="false" />
-            <element signature="e#188#1384#0" expanded="false" />
-            <element signature="e#1386#1578#0" expanded="false" />
-            <element signature="e#1386#2377#0" expanded="false" />
-            <element signature="e#2379#2443#0" expanded="false" />
-            <element signature="e#2379#2913#0" expanded="false" />
-            <element signature="e#2915#3058#0" expanded="false" />
-            <element signature="e#2915#4455#0" expanded="false" />
-            <element signature="e#4457#4485#0" expanded="false" />
-            <element signature="e#4875#5032#0" expanded="false" />
-            <element signature="e#4875#5823#0" expanded="false" />
-            <element signature="e#5825#5871#0" expanded="false" />
-            <element signature="e#6467#6630#0" expanded="false" />
-            <element signature="e#6632#6684#0" expanded="false" />
-            <element signature="e#6632#7955#0" expanded="false" />
+            <element signature="e#188#1234#0" expanded="false" />
+            <element signature="e#1236#1428#0" expanded="false" />
+            <element signature="e#2233#2297#0" expanded="false" />
+            <element signature="e#2233#2767#0" expanded="false" />
+            <element signature="e#2769#2912#0" expanded="false" />
+            <element signature="e#2769#4309#0" expanded="false" />
+            <element signature="e#4311#4339#0" expanded="false" />
+            <element signature="e#4731#4888#0" expanded="false" />
+            <element signature="e#4731#5679#0" expanded="false" />
+            <element signature="e#5681#5727#0" expanded="false" />
+            <element signature="e#5681#6363#0" expanded="false" />
+            <element signature="e#6365#6528#0" expanded="false" />
+            <element signature="e#6530#6582#0" expanded="false" />
+            <element signature="e#6530#7853#0" expanded="false" />
           </folding>
         </state>
       </provider>

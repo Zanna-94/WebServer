@@ -16,12 +16,12 @@ typedef struct {
     char last_field[FIELD_LEN];   /* last header field */
 } data_t;
 
-typedef struct image {
-    char *filename;
+typedef struct converted_image {
+    char name[MAXLINE];
     float quality_factor;
 
-    char *temp_file;
-} image;
+    char temp_file[MAXLINE];
+} converted_image;
 
 void *connection_manager(void *);
 
