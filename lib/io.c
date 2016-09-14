@@ -287,6 +287,30 @@ int is_image(char *filename) {
     return 0;
 }
 
+/*
+ * Obtain first line from http header
+ */
+char *get_request(char *msg) {
 
+    int n, r;
+    char *ptr;
+
+    if ((ptr = malloc(sizeof(MAXLINE))) == NULL) {
+        fprintf(stderr, "error in allocation memory");
+        exit(EXIT_FAILURE);
+    }
+
+    /* loop until buffer is full or end line reached */
+    for (n = 0; n < MAXLINE; n++) {
+
+        if (msg[n] == '\r' || msg[n] == '\n')
+            break;
+        else
+            ptr[n] = msg[n];
+    }
+
+    msg[n] = '\0';
+    return ptr;
+}
 
 

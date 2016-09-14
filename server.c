@@ -4,8 +4,9 @@
 #include "lib/lock_fcntl.h"
 #include <netinet/in.h>
 #include <lru-cache.h>
-#include "thread_job.h"
+#include <arpa/inet.h>
 #include "sig_handler.h"
+#include "thread_job.h"
 
 /*------------------------------------------------------------------------
  * Program:   WebServer
@@ -31,18 +32,23 @@ data_t *allocate_data_t() {
         exit(EXIT_FAILURE);
     }
 
-    message = alloca_http_msg();
+    if ((data->log = malloc((sizeof(log_t)))) == NULL) {
+        fprintf(stderr, "error in memory allocation");
+        exit(EXIT_FAILURE);
+    }
 
+    message = alloca_http_msg();
     data->msg = message;
 
     return data;
 }
 
-void create_thread(int socket) {
+void create_thread(int socket, struct sockaddr_in *cliaddr) {
 
     data_t *data = allocate_data_t();
 
     data->sock = socket;
+    data->log->host = strdup(inet_ntoa(cliaddr->sin_addr));
 
     if (pthread_create(&data->tid, NULL, connection_manager, data) != 0) {
         fprintf(stderr, "Error returned by pthread_create()\n");
@@ -62,9 +68,12 @@ void child_main(int i, int listensd) {
         exit(EXIT_FAILURE);
     }
 
+    /* init cache memory */
     if(get_cache() == NULL){
+        fprintf(stderr, "error getting cache shared memory");
         exit(EXIT_FAILURE);
     }
+
 
     for (;;) {
 
@@ -84,8 +93,7 @@ void child_main(int i, int listensd) {
         fflush(stdout);
 
         if (nthread < MAX_THREAD_N)
-            create_thread(connsd);
-        else {}/* todo send message to parent process */
+            create_thread(connsd, cliaddr);
     }
 }
 

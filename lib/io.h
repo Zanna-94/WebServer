@@ -1,10 +1,8 @@
-#include <stddef.h>
-#include <sys/types.h>
-
 #ifndef WEBSERVER_IO_H
 #define WEBSERVER_IO_H
 
-#endif
+#include <stddef.h>
+#include <sys/types.h>
 
 int open_file(char *);
 
@@ -26,3 +24,6 @@ char *get_filename_ext(char *);
 
 char *is_image(char *);
 
+char *get_request(char *msg);
+
+#endif

@@ -48,6 +48,22 @@ float find_quality_factor(char *accept, char *image_extension) {
     return quality_factor;
 }
 
+unsigned int find_content_lenght(int fd) {
+
+    struct stat st;                 /* strcture to discover file's size */
+    int s;
+
+    /* get image size */
+    errno = 0;
+    s = fstat(fd, &st);
+    if (s == -1 || errno != 0) {
+        perror("fstat");
+        pthread_exit(NULL);
+    }
+
+    return (unsigned int) st.st_size;
+}
+
 /*
  *
  * @param path image path
@@ -118,7 +134,7 @@ void send_not_found(int sock) {
  * @fd file descriptor for the file to send
  * @sock connection socket with the client node
  */
-void send_file(int fd, int sock) {
+void send_file(int fd, int sock, unsigned int content_length) {
 
     struct stat st;                 /* strcture to discover file's size */
     char *response, *mapped_file;   /* memory where map the file */
@@ -171,29 +187,36 @@ void send_file(int fd, int sock) {
 /*
  * Send http response
  */
-void get_response(converted_image *img, int socket) {
+void response_GET(converted_image *img, int socket, log_t *log) {
 
     int fd;
+    unsigned int content_length;
     char *p, *filename, path[MAXLINE];
 
     p = find_in_cache(img);
     if (p == NULL) {
+
         fd = convert_image(img);
         printf("image not found in cache: %s\n", img->temp_file);
         put_in_cache(img);
-    } else {
-        strcpy(img->temp_file, p);
-        printf("image found in cache: %s\n", img->temp_file);
 
+    } else {
+
+        /* build image path */
+        strcpy(img->temp_file, p);
         filename = basename(img->temp_file);
         strcpy(path, CACHE);
         strcat(path, "/");
         strcat(path, filename);
-        printf("%s\n", path);
+        printf("image found in cache: %s %s\n", img->temp_file, path);
+
         fd = open_file(path);
     }
 
-    send_file(fd, socket);
+    content_length = find_content_lenght(fd);
+    send_file(fd, socket, content_length);
+
+    log->bytes = content_length;
 }
 
 /*
@@ -255,11 +278,17 @@ void manage_request(data_t *data, http_parser *parser) {
         format = get_filename_ext(filename);
         img->quality_factor = find_quality_factor(message->accept, format);
 
-        get_response(img, data->sock);
+        response_GET(img, data->sock, data->log);
+        data->log->status = 200;
 
-    } else send_not_found(data->sock);
+    } else {
+        send_not_found(data->sock);
 
+        data->log->bytes = 0;
+        data->log->status = 404;
+    }
 
+    logging(data->log);
 }
 
 void close_connection(int sock) {
@@ -313,6 +342,8 @@ void *connection_manager(void *arg) {
 
         /* parsing http header */
         parser = parse(data, raw_msg, (size_t) nread);
+
+        data->log->request = get_request(raw_msg);
 
         /* For HTTP/1.1 persistent connection is the default behavior*/
         if (parser->type == HTTP_REQUEST)
