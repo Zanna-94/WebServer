@@ -3,8 +3,9 @@
 
 #include <syslog.h>
 #include <time.h>
-#include "../server.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct log_t {
     char *host;

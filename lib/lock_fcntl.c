@@ -1,6 +1,4 @@
-#include "../server.h"
-#include <fcntl.h>
-#include <errno.h>
+#include "lock_fcntl.h"
 
 static struct flock	lock_it, unlock_it;
 static int		lock_fd = -1;

@@ -37,28 +37,28 @@ void *get_cache() {
     if ((shm_id = shmget(key_num_element, sizeof(int), IPC_CREAT | 0666)) < 0) {
         perror("shmget error.");
         printf("errno= %d EINVAL=%d \n ", errno, EINVAL);
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     if ((num_of_elements = shmat(shm_id, NULL, 0)) == (void *) -1) {
         perror("shmat error");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     if ((shm_id = shmget(key_mtx, sizeof(pthread_mutex_t), IPC_CREAT | 0666)) < 0) {
         perror("shmget error.");
         printf("errno= %d EINVAL=%d \n ", errno, EINVAL);
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     if ((mtx = shmat(shm_id, NULL, 0)) == (void *) -1) {
         perror("shmat error");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     if (pthread_mutex_init(mtx, NULL) != 0) {
         fprintf(stderr, "Error in pthread_mutex_init()\n");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
 
@@ -85,7 +85,7 @@ void put_in_cache(converted_image *img) {
 
     if (pthread_mutex_lock(mtx) != 0) {
         perror("pthread_mutex_lock");
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     if ((*num_of_elements) < MAX_SHM_ID_NUM) {
@@ -114,7 +114,7 @@ void put_in_cache(converted_image *img) {
         ptr = get_last();
         if (unlink(ptr->img.temp_file) == -1) {
             fprintf(stderr, "error in unlink");
-            exit(EXIT_FAILURE);
+            pthread_exit(NULL);
         }
 
         ptr->prev->next = NULL;     /* last but one become the last */
@@ -129,7 +129,7 @@ void put_in_cache(converted_image *img) {
 
     if (pthread_mutex_unlock(mtx) != 0) {
         perror("pthread_mutex_unlock");
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 }
 
@@ -164,14 +164,14 @@ char *find_in_cache(converted_image *img) {
 
     if (pthread_mutex_lock(mtx) != 0) {
         perror("pthread_mutex_lock");
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     if (strcmp(my_head->img.name, img->name) == 0 && my_head->img.quality_factor == img->quality_factor) {
 
         if (pthread_mutex_unlock(mtx) != 0) {
             perror("pthread_mutex_unlock");
-            exit(EXIT_FAILURE);
+            pthread_exit(NULL);
         }
 
         return my_head->img.temp_file;
@@ -186,7 +186,7 @@ char *find_in_cache(converted_image *img) {
 
             if (pthread_mutex_unlock(mtx) != 0) {
                 perror("pthread_mutex_unlock");
-                exit(EXIT_FAILURE);
+                pthread_exit(NULL);
             }
 
             return ptr->img.name;
@@ -195,7 +195,7 @@ char *find_in_cache(converted_image *img) {
 
     if (pthread_mutex_unlock(mtx) != 0) {
         perror("pthread_mutex_unlock");
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     return NULL;

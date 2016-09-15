@@ -1,5 +1,4 @@
-#include "server.h"
-#include "thread_job.h"
+#include "parser_callbacks.h"
 
 /**
  * allocate memory for http message structure
@@ -12,7 +11,7 @@ http_message *alloca_http_msg() {
     message = malloc(sizeof(http_message));
     if (message == NULL) {
         fprintf(stderr, "error in memory allocation");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     return message;
@@ -57,7 +56,7 @@ int on_url(http_parser *parser, const char *at, size_t length) {
     message->request_path = malloc(MAXLINE);
     if (message->request_path == NULL) {
         fprintf(stderr, "error in memory allocation");
-        pthread_exit(NULL);
+        return -1;
     }
 
     /* "path/filename HTTP1/1" have to be splitted */

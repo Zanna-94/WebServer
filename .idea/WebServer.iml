@@ -9,16 +9,16 @@
       <sourceFolder url="file://$MODULE_DIR$/thread_job.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sig_handler.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/server.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/lib/mutex_sv.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/ipc_sem.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/io.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/lib/lock_fcntl.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/lib/mutex_sv.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/io.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/lock_fcntl.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/lru-cache.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/logging.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/ipc_sem.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/lru-cache.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/logging.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/lib/io.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/lock_fcntl.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/client.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sig_handler.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/parser_callbacks.c" isTestSource="false" />

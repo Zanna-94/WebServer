@@ -1,6 +1,7 @@
 #include "../server.h"
 #include <fcntl.h>
 #include <errno.h>
+#include "io.h"
 #include <pthread.h>
 
 /*
@@ -162,7 +163,7 @@ int receive_msg_h(int fd, void **ptr) {
     msg = malloc(MSG_SIZE);
     if (msg == NULL) {
         fprintf(stderr, "malloc error");
-        pthread_exit(NULL);
+        return NULL;
     }
 
     navl = MSG_SIZE;    /* space available in the buffer containing the http message */
@@ -176,8 +177,9 @@ int receive_msg_h(int fd, void **ptr) {
         /* read a single line */
         if ((nread = read_line(fd, line, MAXLINE)) == -1) {
             fprintf(stderr, "read_line error");
-            pthread_exit(NULL);
-        }
+            return -1;
+
+        } else if (nread == 0) return nread;
 
         navl -= nread;  /* update available space in msg buffer */
         ssbuf += nread; /* update the number of read bytes */
@@ -187,7 +189,7 @@ int receive_msg_h(int fd, void **ptr) {
             msg = (char *) realloc(msg, (size_t) (ssbuf + MSG_SIZE));
             if (msg == NULL) {
                 fprintf(stderr, "re-allocation of memory failed");
-                pthread_exit(NULL);
+                return -1;
             }
         }
 
@@ -297,7 +299,7 @@ char *get_request(char *msg) {
 
     if ((ptr = malloc(sizeof(MAXLINE))) == NULL) {
         fprintf(stderr, "error in allocation memory");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     /* loop until buffer is full or end line reached */

@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <lru-cache.h>
 #include <arpa/inet.h>
+#include <ipc_sem.h>
+#include <poll.h>
 #include "sig_handler.h"
 
 /*------------------------------------------------------------------------
@@ -49,20 +51,34 @@ void thread_count_init() {
 }
 
 /*
+ * On thread exit, update vars that count number of active threads
+ */
+void th_exit(void *arg) {
+
+    pthread_mutex_lock(mtx);
+
+    (*thread_count)--;
+    thread_limit--;
+
+    fflush(stdout);
+    pthread_mutex_unlock(mtx);
+}
+
+/*
  * allocate shared memory for pids.
  */
-void pids_malloc() {
+void process_count_init() {
 
     int shm_id;
     key_t key = ftok(".", '!');
 
-    if ((shm_id = shmget(key, sizeof(int) * SERVER_LIMIT, IPC_CREAT | 0666)) < 0) {
+    if ((shm_id = shmget(key, sizeof(int), IPC_CREAT | 0666)) < 0) {
         perror("shmget error.");
         printf("errno= %d EINVAL=%d \n ", errno, EINVAL);
         exit(EXIT_FAILURE);
     }
 
-    if ((pids = shmat(shm_id, NULL, 0)) == (void *) -1) {
+    if ((process_count = shmat(shm_id, NULL, 0)) == (void *) -1) {
         perror("shmat error");
         exit(EXIT_FAILURE);
     }
@@ -100,6 +116,14 @@ void create_thread(int socket, struct sockaddr_in *cliaddr) {
     data->sock = socket;
     data->log->host = strdup(inet_ntoa(cliaddr->sin_addr));
 
+    /* increase number of active thread */
+    pthread_mutex_lock(mtx);
+
+    (*thread_count)++;
+    thread_limit++;
+
+    pthread_mutex_unlock(mtx);
+
     if (pthread_create(&tid[thread_limit], NULL, connection_manager, data) != 0) {
         fprintf(stderr, "Error returned by pthread_create()\n");
         exit(EXIT_FAILURE);
@@ -115,30 +139,29 @@ void create_thread(int socket, struct sockaddr_in *cliaddr) {
  */
 int ctrl_load(int listsck) {
 
-    int n, i, p;
+    int i;
     int created, tocreate;
     unsigned int load;
 
-    /* count process children */
-    for (n = 0; pids[n] != 0; ++n);
+    bsem_get(semid);
 
-    created = n - START_SERVER;
+    created = (*process_count) - START_SERVER;
     load = (*thread_count) / THREAD_LIMIT;   /* number of child to have plus*/
     tocreate = load - created;               /* number of child to create */
 
     if (tocreate > 0) {
-        p = n;
+
         for (i = 0; i < tocreate; i++) {
 
-            if ((n + i) >= START_SERVER)
+            if ((*process_count) >= SERVER_LIMIT)
                 break;
 
-            pids[p] = child_make(p, listsck);
-            p++;
+            pids[(*process_count)] = child_make((*process_count), listsck);
+            (*process_count)++;
         }
     }
 
-
+    bsem_put(semid);
     return tocreate;
 }
 
@@ -151,10 +174,8 @@ int im_wasteful(int i) {
 
     load = (*thread_count) / THREAD_LIMIT;    /* number of child to have plus*/
 
-    if (i + 1 > load + START_SERVER) {
-        printf("process %d must terminate", getpid());
+    if (i + 1 >= (load + START_SERVER))
         return 1;
-    }
 
     return 0;
 };
@@ -162,8 +183,7 @@ int im_wasteful(int i) {
 void child_main(int i, int listensd) {
 
     int connsd;                     /* connection socket */
-    struct sockaddr_in *cliaddr;   /* address structure for client peer */
-
+    struct sockaddr_in *cliaddr;    /* address structure for client peer */
 
     if ((cliaddr = (struct sockaddr_in *) malloc(sizeof(struct sockaddr_in))) == NULL) {
         fprintf(stderr, "malloc return null");
@@ -179,16 +199,52 @@ void child_main(int i, int listensd) {
 
     /* init shared memory for thread count in each child*/
     thread_count_init();
-    /* get pids shared memory */
-    pids_malloc();
+
+    /* get shared memory for process count  */
+    process_count_init();
+
+    /* get ipc mutex */
+    semid = get_ipc_semaphore();
+
+
+    struct pollfd pfd;
+    pfd.fd = listensd;
+    pfd.events = POLL_IN | POLL_HUP;
+    pfd.revents = 0;
 
     for (;;) {
 
+        /* Needs to not block on accept. If the server creates many children for the
+        * high load, then the children are not destroyed because the main thread is
+        * blocked on the accept. */
+        while (poll(&pfd, 1, 1) == 0) {
+
+            bsem_get(semid);
+
+            /* Test if process has reason to exist */
+            if (i > START_SERVER && im_wasteful(i)) {
+                int n;
+                for (n = 0; n < thread_limit; n++)
+                    pthread_join(tid[n], NULL);
+
+                (*process_count)--;
+
+                bsem_put(semid);
+
+                exit(EXIT_SUCCESS);
+            }
+
+            bsem_put(semid);
+
+        }
+
         if (thread_limit < THREAD_LIMIT) {
 
-            int clilen = sizeof(struct sockaddr_in);   /* it will contains length of sockaddr structure */
+            /* it will contains length of sockaddr structure */
+            int clilen = sizeof(struct sockaddr_in);
 
-            my_lock_wait();                            /* obtaining lock */
+            /* obtaining lock */
+            my_lock_wait();
 
             if ((connsd = accept(listensd, (struct sockaddr *) cliaddr, (socklen_t *) &clilen)) < 0) {
                 perror("accept");
@@ -197,25 +253,8 @@ void child_main(int i, int listensd) {
 
             my_lock_release();              /* locking release */
 
-            /* debug */
-            fprintf(stdout, "[+] Connection accepted by process: %d\n", i);
-
-            /* increase number of active thread */
-            pthread_mutex_lock(mtx);
-            (*thread_count)++;
-            thread_limit++;
-            pthread_mutex_unlock(mtx);
-
             create_thread(connsd, cliaddr);
 
-        } else usleep(100);
-
-        if (i > START_SERVER && im_wasteful(i)) {
-            int n;
-            for (n = 0; n < thread_limit; n++)
-                pthread_join(tid[n], NULL);
-
-            exit(EXIT_SUCCESS);
         }
 
     }
@@ -275,9 +314,12 @@ int main(int argc, char **argv) {
     (*thread_count) = 0;
 
     /* pids allocation of shared memory and initialization */
-    pids_malloc();
-    for (n = 0; n < SERVER_LIMIT; n++)
-        pids[n] = 0;
+    process_count_init();
+
+    /* get ipc mutex */
+    semid = get_ipc_semaphore();
+
+    *process_count = START_SERVER;
 
     /* initialize process pool */
     for (n = 0; n < START_SERVER; n++)
@@ -291,7 +333,7 @@ int main(int argc, char **argv) {
 
     for (;;) {
         ctrl_load(listensd);
-        usleep(500);    /* fanno tutto i processi figli */
+        sleep(1);    /* fanno tutto i processi figli */
     }
 
 }

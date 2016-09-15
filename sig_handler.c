@@ -1,8 +1,5 @@
-#include <signal.h>
-#include "server.h"
 #include "sig_handler.h"
-#include <sys/wait.h>
-#include <errno.h>
+
 
 /**
  *

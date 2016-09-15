@@ -9,19 +9,6 @@
 #include <lru-cache.h>
 
 /*
- * On thread exit, update vars that count number of active threads
- */
-void th_exit(void *arg) {
-
-    pthread_mutex_lock(mtx);
-    (*thread_count)--;
-    thread_limit--;
-    printf("thread end\n");
-    fflush(stdout);
-    pthread_mutex_unlock(mtx);
-}
-
-/*
  * Parse the header's field "Accept" of http message to find quality factor
  * for "Image/*"
  * @param accept field Accept in http message*s header
@@ -247,7 +234,7 @@ http_parser *parse(data_t *data, char *http_msg, size_t recved) {
     http_parser *parser = malloc(sizeof(http_parser));
     if (parser == NULL) {
         fprintf(stderr, "error in memory allocation");
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     /* setting callbacks */
@@ -263,7 +250,7 @@ http_parser *parse(data_t *data, char *http_msg, size_t recved) {
     parser->http_errno = 0;
     http_parser_execute(parser, &settings, http_msg, recved);
     if (parser->http_errno != 0) {
-        fprintf(stderr, "http_parser_execute error");
+        fprintf(stderr, "http_parser_execute error\n");
         pthread_exit(NULL);
     }
 
@@ -331,13 +318,10 @@ void *connection_manager(void *arg) {
     char *raw_msg;
     struct timeval timeout;
 
-
     timeout.tv_sec = TIMEOUT;
     FD_ZERO(&rset);
     FD_SET(data->sock, &rset);
 
-    /* */
-    printf("[+] Connection opened\n");
     pthread_cleanup_push(th_exit, NULL) ;
 
             do {
@@ -351,6 +335,10 @@ void *connection_manager(void *arg) {
 
                 /* read http header from connsd socket and store it in msg buffer */
                 nread = receive_msg_h(data->sock, (void **) &raw_msg);
+                if (nread == 0) {
+                    // connection closed from client side
+                    pthread_exit(NULL);
+                }
                 data->msg->raw = raw_msg;
 
                 /* parsing http header */

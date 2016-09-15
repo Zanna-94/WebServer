@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 #include <sys/types.h>
+#include <poll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 
 int open_file(char *);
 
@@ -22,7 +26,7 @@ int exist(char *);
 
 char *get_filename_ext(char *);
 
-char *is_image(char *);
+int is_image(char *);
 
 char *get_request(char *msg);
 

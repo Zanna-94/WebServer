@@ -5,17 +5,6 @@
 #include "pthread.h"
 #include "logging.h"
 
-#define FIELD_LEN   32
-
-typedef struct {
-    pthread_t tid;                /* thread id */
-    int sock;                     /* connection socket */
-    log_t *log;                   /* logging info */
-
-    http_message *msg;            /* http message */
-    char last_field[FIELD_LEN];   /* last header field */
-} data_t;
-
 typedef struct converted_image {
     char name[MAXLINE];
     float quality_factor;
