@@ -1,9 +1,16 @@
 #ifndef WEBSERVER_SERVER_JOB_H
 #define WEBSERVER_SERVER_JOB_H
 
+#include "server.h"
 #include "parser_callbacks.h"
 #include "pthread.h"
 #include "logging.h"
+#include <libgen.h>
+#include <MagickWand/MagickWand.h>
+#include <http_parser.h>
+#include <stdlib.h>
+
+
 
 typedef struct converted_image {
     char name[MAXLINE];

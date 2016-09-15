@@ -72,31 +72,42 @@ int convert_image(converted_image *img) {
 
     MagickWand *m_wand = NULL;
     int fd;
+    char path_tmp[128];
+    char path_orig[128];
 
-    strcpy(img->temp_file, "./cache/image.XXXXXX");
+    bzero(path_tmp, 0);
+    strcpy(path_tmp, CACHE);
+    strcat(path_tmp, "image.XXXXXX");
+
+
+    bzero(path_orig, 0);
+    strcpy(path_orig, ROOT);
+    strcat(path_orig, img->name);
 
     MagickWandGenesis();
 
     m_wand = NewMagickWand();
 
     // Read the image
-    MagickReadImage(m_wand, img->name);
+    MagickReadImage(m_wand, path_orig);
 
     // Set the compression quality to 95 (high quality = low compression)
     MagickSetImageCompressionQuality(m_wand, (const size_t) img->quality_factor * 100);
 
     /* Write the new image on temporary file*/
     errno = 0;
-    fd = mkostemp(img->temp_file, 666);
+    fd = mkostemp(path_tmp, 666);
     if (fd == -1 || errno != 0) {
         perror("mkostemp");
         pthread_exit(NULL);
     }
 
-    MagickWriteImage(m_wand, img->temp_file);
+    MagickWriteImage(m_wand, path_tmp);
 
     /* Clean up */
     if (m_wand)m_wand = DestroyMagickWand(m_wand);
+
+    strcpy(img->temp_file, basename(path_tmp));
 
     MagickWandTerminus();
 
@@ -188,24 +199,23 @@ void response_GET(converted_image *img, int socket, log_t *log) {
 
     int fd;
     unsigned int content_length;
-    char *p, *filename, path[MAXLINE];
+    char *file_tmp, path[MAXLINE];
 
-    p = find_in_cache(img);
-    if (p == NULL) {
+    file_tmp = find_in_cache(img);
+    if (file_tmp == NULL) {
 
+        printf("Image NOT found in cache\n");
         fd = convert_image(img);
-        printf("image not found in cache: %s\n", img->temp_file);
         put_in_cache(img);
 
     } else {
 
         /* build image path */
-        strcpy(img->temp_file, p);
-        filename = basename(img->temp_file);
+        strcpy(img->temp_file, file_tmp);
         strcpy(path, CACHE);
-        strcat(path, "/");
-        strcat(path, filename);
-        printf("image found in cache: %s %s\n", img->temp_file, path);
+        strcat(path, img->temp_file);
+
+        printf("Image found in cache\n");
 
         fd = open_file(path);
         /* cache is in a inconsistent state: unexpected error */
@@ -262,7 +272,7 @@ http_parser *parse(data_t *data, char *http_msg, size_t recved) {
  */
 void manage_request(data_t *data, http_parser *parser) {
 
-    char *filename, *format;
+    char *filename, *format, path[128];
 
     converted_image *img = malloc(sizeof(converted_image));
     if (img == NULL) {
@@ -273,10 +283,11 @@ void manage_request(data_t *data, http_parser *parser) {
     http_message *message = data->msg;
     filename = message->request_path;
 
+    strcpy(path, ROOT);
+    strcat(path, filename);
+    strcpy(img->name, filename);
 
-    strcpy(img->name, HOME);
-    strcat(img->name, filename);
-    if (exist(img->name)) {
+    if (exist(path)) {
 
         format = get_filename_ext(filename);
         img->quality_factor = find_quality_factor(message->accept, format);
@@ -334,12 +345,16 @@ void *connection_manager(void *arg) {
                 }
 
                 /* read http header from connsd socket and store it in msg buffer */
+                bzero(raw_msg, 0);
                 nread = receive_msg_h(data->sock, (void **) &raw_msg);
                 if (nread == 0) {
                     // connection closed from client side
                     pthread_exit(NULL);
                 }
-                data->msg->raw = raw_msg;
+
+                data->msg->raw = strdup(raw_msg);
+
+                printf("%s", raw_msg);
 
                 /* parsing http header */
                 parser = parse(data, raw_msg, (size_t) nread);

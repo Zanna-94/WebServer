@@ -3,7 +3,7 @@
 
 #include "server.h"
 #include "http_parser.h"
-//#include "thread_data.h"
+#include <libgen.h>
 
 http_message *alloca_http_msg();
 

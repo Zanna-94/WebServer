@@ -51,7 +51,6 @@ ssize_t readn(int fd, void *buf, size_t n) {
 }
 
 /*
- *
  * @param fd file descriptor
  * @param ptr pointer to a buffer
  * @param maxlen max size for line's lenght
@@ -163,7 +162,7 @@ int receive_msg_h(int fd, void **ptr) {
     msg = malloc(MSG_SIZE);
     if (msg == NULL) {
         fprintf(stderr, "malloc error");
-        return NULL;
+        pthread_exit(NULL);
     }
 
     navl = MSG_SIZE;    /* space available in the buffer containing the http message */
@@ -177,9 +176,8 @@ int receive_msg_h(int fd, void **ptr) {
         /* read a single line */
         if ((nread = read_line(fd, line, MAXLINE)) == -1) {
             fprintf(stderr, "read_line error");
-            return -1;
-
-        } else if (nread == 0) return nread;
+            pthread_exit(NULL);
+        }
 
         navl -= nread;  /* update available space in msg buffer */
         ssbuf += nread; /* update the number of read bytes */
@@ -189,7 +187,7 @@ int receive_msg_h(int fd, void **ptr) {
             msg = (char *) realloc(msg, (size_t) (ssbuf + MSG_SIZE));
             if (msg == NULL) {
                 fprintf(stderr, "re-allocation of memory failed");
-                return -1;
+                pthread_exit(NULL);
             }
         }
 
@@ -206,6 +204,7 @@ int receive_msg_h(int fd, void **ptr) {
     *ptr = msg;
     return ssbuf;
 }
+
 
 /*
  * Test if the http message's header is finished.
@@ -241,6 +240,8 @@ void removeSpaces(char *source) {
  * @return 0 if the file exist, 1 otherwise
  */
 int exist(char *path) {
+
+    printf("%s\n", path);
 
     if (access(path, F_OK) != -1) {
         return 1;

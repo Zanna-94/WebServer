@@ -14,13 +14,13 @@
 #define TIMEOUT         5
 
 
-#define START_SERVER    3
+#define START_SERVER    1
 #define SERVER_LIMIT    16
-#define THREAD_LIMIT    5
+#define THREAD_LIMIT    64
 
 
-#define HOME            "/home/emanuele/Scrivania/WebServer/image"
-#define CACHE           "/home/emanuele/Scrivania/WebServer/cache"
+#define ROOT            "/home/emanuele/Scrivania/WebServer/image/"
+#define CACHE           "/home/emanuele/Scrivania/WebServer/cache/"
 
 #define FIELD_LEN   32
 

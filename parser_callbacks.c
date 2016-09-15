@@ -60,7 +60,7 @@ int on_url(http_parser *parser, const char *at, size_t length) {
     }
 
     /* "path/filename HTTP1/1" have to be splitted */
-    message->request_path = strtok((char *) at, " ");
+    message->request_path = basename(strtok((char *) at, " "));
 
     return 0;
 }
