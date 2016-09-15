@@ -1,4 +1,4 @@
-#include "../basic.h"
+#include "../server.h"
 #include <fcntl.h>
 #include <errno.h>
 #include <pthread.h>
@@ -15,7 +15,7 @@ int open_file(char *filename) {
     fd = open(filename, O_RDONLY);
     if (fd == -1 || errno != 0) {
         perror("open");
-        pthread_exit(NULL);
+        return -1;
     }
 
     return fd;

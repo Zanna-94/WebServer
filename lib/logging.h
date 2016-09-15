@@ -3,7 +3,7 @@
 
 #include <syslog.h>
 #include <time.h>
-#include "../basic.h"
+#include "../server.h"
 
 
 typedef struct log_t {

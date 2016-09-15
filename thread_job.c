@@ -1,5 +1,5 @@
 #include <MagickWand/MagickWand.h>
-#include "basic.h"
+#include "server.h"
 #include <http_parser.h>
 #include "thread_job.h"
 #include "lib/io.h"
@@ -8,6 +8,18 @@
 #include <sys/mman.h>
 #include <lru-cache.h>
 
+/*
+ * On thread exit, update vars that count number of active threads
+ */
+void th_exit(void *arg) {
+
+    pthread_mutex_lock(mtx);
+    (*thread_count)--;
+    thread_limit--;
+    printf("thread end\n");
+    fflush(stdout);
+    pthread_mutex_unlock(mtx);
+}
 
 /*
  * Parse the header's field "Accept" of http message to find quality factor
@@ -20,8 +32,6 @@ float find_quality_factor(char *accept, char *image_extension) {
 
     char *token, *ptr, field[MAXLINE];
     float quality_factor = 1;
-
-    int len = (int) strlen(image_extension);
 
     strcat(field, "image/");
     strcat(field, image_extension);
@@ -177,10 +187,10 @@ void send_file(int fd, int sock, unsigned int content_length) {
         pthread_exit(NULL);
     }
 
-//    if (munmap(mapped_file, (size_t) content_lenght) == -1) {
-//        perror("munmap");
-//        pthread_exit(NULL);
-//    }
+    if (munmap(mapped_file, (size_t) content_lenght) == -1) {
+        perror("munmap");
+        pthread_exit(NULL);
+    }
 
 }
 
@@ -211,6 +221,12 @@ void response_GET(converted_image *img, int socket, log_t *log) {
         printf("image found in cache: %s %s\n", img->temp_file, path);
 
         fd = open_file(path);
+        /* cache is in a inconsistent state: unexpected error */
+        if (fd == -1) {
+            fd = convert_image(img);
+            put_in_cache(img);
+        }
+
     }
 
     content_length = find_content_lenght(fd);
@@ -313,49 +329,50 @@ void *connection_manager(void *arg) {
     int nread, n;
     fd_set rset;
     char *raw_msg;
-    struct timeval *timeout;
+    struct timeval timeout;
 
-    timeout = malloc(sizeof(struct timeval));
-    if (timeout == NULL) {
-        fprintf(stderr, "error in memory allocation");
-        pthread_exit(NULL);
-    }
 
-    timeout->tv_sec = TIMEOUT;
+    timeout.tv_sec = TIMEOUT;
     FD_ZERO(&rset);
     FD_SET(data->sock, &rset);
 
+    /* */
     printf("[+] Connection opened\n");
+    pthread_cleanup_push(th_exit, NULL) ;
 
-    do {
+            do {
 
-        /* if no message are received in timeout seconds, the connection is closed */
-        n = select(data->sock + 1, &rset, NULL, NULL, timeout);
-        if (n == 0) {
-            close_connection(data->sock);
-            pthread_exit(EXIT_SUCCESS);
-        }
+                /* if no message are received in timeout seconds, the connection is closed */
+                n = select(data->sock + 1, &rset, NULL, NULL, &timeout);
+                if (n == 0) {
+                    close_connection(data->sock);
+                    pthread_exit(NULL);
+                }
 
-        /* read http header from connsd socket and store it in msg buffer */
-        nread = receive_msg_h(data->sock, (void **) &raw_msg);
-        data->msg->raw = raw_msg;
+                /* read http header from connsd socket and store it in msg buffer */
+                nread = receive_msg_h(data->sock, (void **) &raw_msg);
+                data->msg->raw = raw_msg;
 
-        /* parsing http header */
-        parser = parse(data, raw_msg, (size_t) nread);
+                /* parsing http header */
+                parser = parse(data, raw_msg, (size_t) nread);
 
-        data->log->request = get_request(raw_msg);
+                data->log->request = get_request(raw_msg);
 
-        /* For HTTP/1.1 persistent connection is the default behavior*/
-        if (parser->type == HTTP_REQUEST)
-            manage_request(data, parser);
-
-
-        free(data->msg);
-
-    } while (http_should_keep_alive(parser));
+                /* For HTTP/1.1 persistent connection is the default behavior*/
+                if (parser->type == HTTP_REQUEST)
+                    manage_request(data, parser);
 
 
-    printf("[+] Close connection\n");
+                free(data->msg);
+
+            } while (http_should_keep_alive(parser));
+
+
+            printf("[+] Close connection\n");
+
+            pthread_exit(NULL);
+
+    pthread_cleanup_pop(0);
 
 }
 

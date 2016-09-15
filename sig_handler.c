@@ -1,5 +1,5 @@
 #include <signal.h>
-#include "basic.h"
+#include "server.h"
 #include "sig_handler.h"
 #include <sys/wait.h>
 #include <errno.h>
@@ -31,7 +31,7 @@ Sigfunc *signal(int signum, Sigfunc *func) {
 void sig_int() {
     int i;
 
-    for (i = 0; i < CHILD_N; i++)
+    for (i = 0; i < START_SERVER; i++)
         kill(pids[i], SIGTERM);
     while (wait(NULL) > 0);    /* attende per tutti i processi child */
 

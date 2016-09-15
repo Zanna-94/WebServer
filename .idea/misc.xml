@@ -3,9 +3,11 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <libraryRoots>
-      <file path="$PROJECT_DIR$/C-LRU-Cache" />
       <file path="$PROJECT_DIR$/http-parser" />
     </libraryRoots>
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/C-LRU-Cache" />
+    </excludeRoots>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />

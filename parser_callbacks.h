@@ -2,7 +2,7 @@
 #define WEBSERVER_MSG_PARSER_H
 
 #include "http_parser.h"
-#include "basic.h"
+#include "server.h"
 
 typedef struct {
 
