@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 
 void send_message(int sock) {
 
-    char *message = "GET / HTTP/1.1\r\n"
+    char *message = "GET /1.jpeg HTTP/1.1\r\n"
             "Accept:image/jpeg;q=0.4, text/plain;q=1 \r\n"
             "Host: 127.0.0.1:5193\r\n\r\n";
 

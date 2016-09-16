@@ -18,7 +18,7 @@ int read_line(int fd, void *ptr, int maxlen);
 
 int write_line(int fd, const void *ptr, int maxlen);
 
-int receive_msg_h(int, void **);
+int receive_msg_h(int, char *);
 
 void removeSpaces(char *);
 

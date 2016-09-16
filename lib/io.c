@@ -23,31 +23,16 @@ int open_file(char *filename) {
 }
 
 /*
- * @param fd file descriptor
- * @param buf  buffer containing string to read
- * @param n number of chars to read
- * @return  On success the number of bytes read, -1 on error
+ * Test if the http message's header is finished.
+ * @param ptr string
+ * @return 1 if the string start with \r\n. Otherwise 0
  */
-ssize_t readn(int fd, void *buf, size_t n) {
-    size_t nleft;   /* missing bytes to be read */
-    ssize_t nread;  /* read bytes to update file position indicator */
-    char *ptr;
+int header_end(char *ptr) {
 
-    ptr = buf;
-    nleft = n;
-    while (nleft > 0) {
-        if ((nread = read(fd, ptr, nleft)) < 0) {
-            if (errno == EINTR) /* the call was interrupter by a signal */
-                nread = 0;
-            else return (-1);    /* error */
-
-        } else if (nread == 0)
-            break;  /* EOF */
-
-        nleft -= nread;
-        ptr += nread;
+    if (strcmp(ptr, "\r\n") == 0) {
+        return 1;
     }
-    return (n - nleft);
+    return 0;
 }
 
 /*
@@ -84,66 +69,22 @@ int read_line(int fd, void *ptr, int maxlen) {
     return n;
 }
 
-/*
- *
- * @param fd file descriptor
- * @param buf pointer to string to write
- * @param n number of bytes to write
- * @return number of written bytes
- */
 ssize_t writen(int fd, const void *buf, size_t n) {
-
     size_t nleft;
     ssize_t nwritten;
     const char *ptr;
 
     ptr = buf;
     nleft = n;
-
     while (nleft > 0) {
-        if ((nwritten = write(fd, ptr, nleft)) == -1) {
-            if (errno == EINTR) nwritten = 0;   /* signal */
-            else return (-1);        /* unexpected error */
+        if ((nwritten = write(fd, ptr, nleft)) <= 0) {
+            if ((nwritten < 0) && (errno == EINTR)) nwritten = 0;
+            else return (-1);        /* errore */
         }
-
         nleft -= nwritten;
         ptr += nwritten;
     }
-    return (n - nleft);
-}
-
-/*
- * Write a string on a file until new line or end of file occur.
- *
- * @param fd file descriptor
- * @param ptr pointer to string to write
- * @param maxlen number of bytes to write
- * @return number of written bytes
- */
-int write_line(int fd, const void *ptr, int maxlen) {
-
-    int n;
-    ssize_t r;
-
-    const char *buf = ptr;
-
-    /* loop until buffer is full or end line reached */
-    for (n = 0; n < maxlen; n++) {
-
-        if ((r = write(fd, buf, 1)) == -1) {
-            perror("write");
-            return -1;
-        }
-
-        if (r == 1 && (*buf == '\n' || *buf == '\0')) {
-            break;   /* end line */
-        }
-
-        buf++;
-
-    }
-
-    return n;
+    return (n - nleft);    /* restituisce >= 0 */
 }
 
 /*
@@ -152,23 +93,13 @@ int write_line(int fd, const void *ptr, int maxlen) {
  * @param fd file or socket descriptor
  * @param ptr pointer to the read http message header. value-result argument.
  */
-int receive_msg_h(int fd, void **ptr) {
+int receive_msg_h(int fd, char *ptr) {
 
-    int header_end(char *);
+    int nread, ssbuf;
 
-    int nread, navl, ssbuf;
-    char *msg;
-
-    msg = malloc(MSG_SIZE);
-    if (msg == NULL) {
-        fprintf(stderr, "malloc error");
-        pthread_exit(NULL);
-    }
-
-    navl = MSG_SIZE;    /* space available in the buffer containing the http message */
     ssbuf = 0;  /* number of read bytes */
 
-    for (;;) {
+    while (MSG_SIZE - ssbuf > MAXLINE) {
 
         char line[MAXLINE];
         bzero(line, MAXLINE);
@@ -179,20 +110,9 @@ int receive_msg_h(int fd, void **ptr) {
             pthread_exit(NULL);
         }
 
-        navl -= nread;  /* update available space in msg buffer */
         ssbuf += nread; /* update the number of read bytes */
-
-        /* if the message buffer has not space to containing the read line then allocate new memory */
-        if (navl < nread) {
-            msg = (char *) realloc(msg, (size_t) (ssbuf + MSG_SIZE));
-            if (msg == NULL) {
-                fprintf(stderr, "re-allocation of memory failed");
-                pthread_exit(NULL);
-            }
-        }
-
         /* concatenate the read line to the http message */
-        strncat(msg, line, strlen(line));
+        strncat(ptr, line, strlen(line));
 
         /* http message header ends with empty line ( "\r\n" ) */
         if (header_end(line)) {
@@ -201,22 +121,8 @@ int receive_msg_h(int fd, void **ptr) {
 
     }
 
-    *ptr = msg;
+    ptr[ssbuf] = '\0';
     return ssbuf;
-}
-
-
-/*
- * Test if the http message's header is finished.
- * @param ptr string
- * @return 1 if the string start with \r\n. Otherwise 0
- */
-int header_end(char *ptr) {
-
-    if (strcmp(ptr, "\r\n") == 0) {
-        return 1;
-    }
-    return 0;
 }
 
 /*
@@ -240,8 +146,6 @@ void removeSpaces(char *source) {
  * @return 0 if the file exist, 1 otherwise
  */
 int exist(char *path) {
-
-    printf("%s\n", path);
 
     if (access(path, F_OK) != -1) {
         return 1;
@@ -295,7 +199,7 @@ int is_image(char *filename) {
  */
 char *get_request(char *msg) {
 
-    int n, r;
+    int n;
     char *ptr;
 
     if ((ptr = malloc(sizeof(MAXLINE))) == NULL) {
@@ -315,5 +219,3 @@ char *get_request(char *msg) {
     msg[n] = '\0';
     return ptr;
 }
-
-

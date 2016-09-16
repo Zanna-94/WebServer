@@ -42,13 +42,11 @@ static unsigned int thread_limit = 0;   /* each child count how many thread it h
 
 typedef struct http_message {
 
-    char *raw;                              /* http message received */
-
     /* HEADER FIELD */
     char host[MAXLINE];
     char accept[MAXLINE];                   /* information about quality of accepted files */
     char content_type[MAXLINE];             /* information about format of accepted files */
-    char *request_path;                     /* only for request message */
+    char *request_path;              /* only for request message */
 
 } http_message;
 

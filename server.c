@@ -19,7 +19,6 @@ pthread_t tid[THREAD_LIMIT];
 
 pid_t child_make(int, int);
 
-
 void thread_count_init() {
 
     int shm_id;
@@ -331,6 +330,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
+    printf("SERVER START!\n");
     for (;;) {
         ctrl_load(listensd);
         sleep(1);    /* fanno tutto i processi figli */
