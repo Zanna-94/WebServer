@@ -61,14 +61,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="56211d24-bdb9-4a78-a72d-34da489887f0" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/constants.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/http_response.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/http_response.h" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/image/11.jpeg" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/parser_callbacks.c" afterPath="$PROJECT_DIR$/parser.c" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/parser_callbacks.h" afterPath="$PROJECT_DIR$/parser.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/WebServer.iml" afterPath="$PROJECT_DIR$/.idea/WebServer.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client.c" afterPath="$PROJECT_DIR$/client.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/io.c" afterPath="$PROJECT_DIR$/lib/io.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/io.h" afterPath="$PROJECT_DIR$/lib/io.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/lru-cache.h" afterPath="$PROJECT_DIR$/lib/lru-cache.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server.c" afterPath="$PROJECT_DIR$/server.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server.h" afterPath="$PROJECT_DIR$/server.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/thread_job.c" afterPath="$PROJECT_DIR$/thread_job.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/thread_job.h" afterPath="$PROJECT_DIR$/thread_job.h" />
     </list>
     <ignored path="WebServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -91,7 +99,7 @@
     <favorites_list name="WebServer" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -99,14 +107,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/locking.c.c" />
-        <option value="$PROJECT_DIR$/locking.c" />
-        <option value="$PROJECT_DIR$/pr_cpu_time.c" />
-        <option value="$PROJECT_DIR$/signal_handler.c" />
-        <option value="$PROJECT_DIR$/main_job.c" />
-        <option value="$PROJECT_DIR$/msg_parser.h" />
-        <option value="$PROJECT_DIR$/header/lock_fcntl.h" />
-        <option value="$PROJECT_DIR$/http-parser-master/http_parser.c" />
         <option value="$PROJECT_DIR$/header/server_job.h" />
         <option value="$PROJECT_DIR$/server_job.c" />
         <option value="$PROJECT_DIR$/mandelbrot5.c" />
@@ -123,7 +123,6 @@
         <option value="$PROJECT_DIR$/header/io.h" />
         <option value="$PROJECT_DIR$/lru-cache.c" />
         <option value="$PROJECT_DIR$/header/basic.h" />
-        <option value="$PROJECT_DIR$/lib/lru-cache.h" />
         <option value="$PROJECT_DIR$/prova.c" />
         <option value="$PROJECT_DIR$/basic.h" />
         <option value="$PROJECT_DIR$/lib/mutex_sv.c" />
@@ -135,21 +134,30 @@
         <option value="$PROJECT_DIR$/sig_handler.h" />
         <option value="$PROJECT_DIR$/thread_data.h" />
         <option value="$PROJECT_DIR$/lib/logging.c" />
-        <option value="$PROJECT_DIR$/lib/logging.h" />
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/lib/ipc_sem.c" />
         <option value="$PROJECT_DIR$/lib/ipc_sem.h" />
         <option value="$PROJECT_DIR$/lib/lru-cache.c" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/parser_callbacks.h" />
-        <option value="$PROJECT_DIR$/thread_job.h" />
         <option value="$PROJECT_DIR$/client.c" />
-        <option value="$PROJECT_DIR$/server.c" />
+        <option value="$PROJECT_DIR$/wurfl/wurlf_helper.h" />
+        <option value="$PROJECT_DIR$/wurfl/wurlf_helper.c" />
+        <option value="$PROJECT_DIR$/libwurfl-master/src/utils/hashtable.c" />
         <option value="$PROJECT_DIR$/parser_callbacks.c" />
+        <option value="$PROJECT_DIR$/parser.c" />
+        <option value="$PROJECT_DIR$/parser.h" />
+        <option value="$PROJECT_DIR$/server.c" />
+        <option value="$PROJECT_DIR$/lib/lru-cache.h" />
         <option value="$PROJECT_DIR$/server.h" />
+        <option value="$PROJECT_DIR$/lib/logging.h" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/http_response.h" />
+        <option value="$PROJECT_DIR$/constants.h" />
         <option value="$PROJECT_DIR$/lib/io.h" />
-        <option value="$PROJECT_DIR$/thread_job.c" />
         <option value="$PROJECT_DIR$/lib/io.c" />
+        <option value="$PROJECT_DIR$/http_response.c" />
+        <option value="$PROJECT_DIR$/thread_job.c" />
+        <option value="$PROJECT_DIR$/thread_job.h" />
       </list>
     </option>
   </component>
@@ -161,9 +169,9 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
-    <option name="y" value="-4" />
+    <option name="y" value="24" />
     <option name="width" value="1366" />
-    <option name="height" value="772" />
+    <option name="height" value="744" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -418,10 +426,15 @@
       <envs />
       <method />
     </configuration>
-    <list size="3">
+    <configuration default="false" name="prova" type="CMakeRunConfiguration" factoryName="Application" WORKING_DIR="" PASS_PARENT_ENVS_2="true" PROJECT_NAME="WebServer" TARGET_NAME="prova" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="WebServer" RUN_TARGET_NAME="prova">
+      <envs />
+      <method />
+    </configuration>
+    <list size="4">
       <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
       <item index="1" class="java.lang.String" itemvalue="Application.client" />
       <item index="2" class="java.lang.String" itemvalue="Application.server" />
+      <item index="3" class="java.lang.String" itemvalue="Application.prova" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
@@ -475,12 +488,19 @@
       <workItem from="1474037701579" duration="4911000" />
       <workItem from="1474043226117" duration="1564000" />
       <workItem from="1474045031771" duration="377000" />
-      <workItem from="1474048230392" duration="3157000" />
+      <workItem from="1474048230392" duration="3213000" />
+      <workItem from="1474054681563" duration="3062000" />
+      <workItem from="1474063626643" duration="4153000" />
+      <workItem from="1474068711220" duration="772000" />
+      <workItem from="1474126346400" duration="626000" />
+      <workItem from="1474219608267" duration="3117000" />
+      <workItem from="1474228594397" duration="7607000" />
+      <workItem from="1474236430996" duration="549000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="274366000" />
+    <option name="totallyTimeSpent" value="294308000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -492,7 +512,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="-4" width="1366" height="772" extended-state="6" />
+    <frame x="0" y="24" width="1366" height="744" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287037" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
@@ -500,9 +520,9 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.48142415" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4024768" sideWeight="0.5060606" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972136" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5696595" sideWeight="0.4939394" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3993808" sideWeight="0.4939394" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.63271606" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26818183" sideWeight="0.49382716" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18712121" sideWeight="0.49382716" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TeamCity" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287037" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24924242" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -582,69 +602,11 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="44" />
+      <option name="time" value="46" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/include/stdio.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="173" column="8" selection-start-line="173" selection-start-column="8" selection-end-line="173" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/bin/cmake/share/cmake-3.6/Modules/FindPkgConfig.cmake">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="26">
-          <caret line="646" column="0" selection-start-line="646" selection-start-column="0" selection-end-line="646" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/include/ImageMagick-7/MagickCore/magick-config.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="50" column="84" selection-start-line="50" selection-start-column="48" selection-end-line="50" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/include/ImageMagick-7/MagickWand/method-attribute.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="88" column="10" selection-start-line="88" selection-start-column="10" selection-end-line="88" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/include/ImageMagick-7/MagickWand/MagickWand.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="119" column="14" selection-start-line="119" selection-start-column="14" selection-end-line="119" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.h" />
-    <entry file="file://$APPLICATION_HOME_DIR$/bin/cmake/share/cmake-3.6/Modules/FindPackageHandleStandardArgs.cmake">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/http-parser/test.c" />
-    <entry file="file://$PROJECT_DIR$/main.c" />
-    <entry file="file:///usr/include/alloca.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="34" column="9" selection-start-line="34" selection-start-column="9" selection-end-line="34" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/C-LRU-Cache/lruc.h" />
-    <entry file="file://$PROJECT_DIR$/lru-cache.cpp" />
-    <entry file="file://$PROJECT_DIR$/C-LRU-Cache/test.c" />
-    <entry file="file://$PROJECT_DIR$/http-parser/http_parser.c" />
-    <entry file="file://$PROJECT_DIR$/http-parser/contrib/parsertrace.c" />
-    <entry file="file://$PROJECT_DIR$/http-parser/http_parser.h" />
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -672,68 +634,12 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/costant.h" />
-    <entry file="file://$PROJECT_DIR$/lib/lru-cache.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/thread_data.c" />
     <entry file="file://$PROJECT_DIR$/thread_data.h" />
-    <entry file="file://$PROJECT_DIR$/lib/logging.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sig_handler.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="6" column="18" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="21" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ipc_sem.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="19" column="28" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sig_handler.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="36" column="17" selection-start-line="36" selection-start-column="13" selection-end-line="36" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/logging.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-284">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/lock_fcntl.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-410">
-          <caret line="0" column="22" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ipc_sem.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-122">
-          <caret line="24" column="12" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="12" />
         </state>
       </provider>
     </entry>
@@ -758,19 +664,10 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/parser_callbacks.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="936">
           <caret line="56" column="32" selection-start-line="56" selection-start-column="32" selection-end-line="56" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -781,70 +678,151 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/parser.h" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/device.c" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/device.h" />
+    <entry file="file:///usr/local/include/device.h" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/wurfl.h" />
+    <entry file="file:///usr/local/include/wurfl.h" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/matcher.h" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/utils/hashtable.h" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/utils/hashtable.c" />
+    <entry file="file://$PROJECT_DIR$/libwurfl-master/src/wurfl.c" />
+    <entry file="file://$PROJECT_DIR$/wurfl/wurlf_helper.c" />
+    <entry file="file://$PROJECT_DIR$/wurfl/wurlf_helper.h" />
+    <entry file="file://$PROJECT_DIR$/parser.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="73" column="63" selection-start-line="73" selection-start-column="63" selection-end-line="73" selection-end-column="63" />
+          <folding>
+            <element signature="e#21#115#0" expanded="false" />
+            <element signature="e#21#354#0" expanded="false" />
+            <element signature="e#356#584#0" expanded="false" />
+            <element signature="e#586#1071#0" expanded="false" />
+            <element signature="e#1074#1582#0" expanded="false" />
+            <element signature="e#1584#1786#0" expanded="false" />
+            <element signature="e#1584#2575#0" expanded="false" />
+            <element signature="e#2577#2734#0" expanded="false" />
+            <element signature="e#2577#3513#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parser.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="18" selection-start-line="4" selection-start-column="18" selection-end-line="4" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/constants.c" />
+    <entry file="file://$PROJECT_DIR$/lib/ipc_sem.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="24" column="12" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/lock_fcntl.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="22" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/logging.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/lru-cache.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="19" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/lru-cache.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="81" column="5" selection-start-line="81" selection-start-column="5" selection-end-line="81" selection-end-column="5" />
-          <folding />
+        <state relative-caret-position="403">
+          <caret line="180" column="61" selection-start-line="180" selection-start-column="61" selection-end-line="180" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sig_handler.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="648">
+          <caret line="36" column="17" selection-start-line="36" selection-start-column="13" selection-end-line="36" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sig_handler.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="9" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="472">
-          <caret line="273" column="32" selection-start-line="273" selection-start-column="32" selection-end-line="273" selection-end-column="32" />
-          <folding>
-            <element signature="e#567#1357#0" expanded="false" />
-            <element signature="e#1359#1432#0" expanded="false" />
-            <element signature="e#1359#1586#0" expanded="false" />
-            <element signature="e#1588#1630#0" expanded="false" />
-            <element signature="e#1588#2037#0" expanded="false" />
-            <element signature="e#2039#2088#0" expanded="false" />
-            <element signature="e#2039#2537#0" expanded="false" />
-            <element signature="e#2539#3060#0" expanded="false" />
-            <element signature="e#3062#3228#0" expanded="false" />
-            <element signature="e#3062#3856#0" expanded="false" />
-            <element signature="e#3858#3976#0" expanded="false" />
-            <element signature="e#3858#4181#0" expanded="false" />
-            <element signature="e#4184#6240#0" expanded="false" />
-            <element signature="e#6242#6417#0" expanded="false" />
-            <element signature="e#6419#8488#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/thread_job.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="20" selection-start-line="6" selection-start-column="20" selection-end-line="6" selection-end-column="20" />
+        <state relative-caret-position="11">
+          <caret line="116" column="0" selection-start-line="116" selection-start-column="0" selection-end-line="116" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/parser_callbacks.c">
+    <entry file="file://$PROJECT_DIR$/lib/logging.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="49" column="63" selection-start-line="49" selection-start-column="63" selection-end-line="49" selection-end-column="63" />
-          <folding>
-            <element signature="e#366#594#0" expanded="false" />
-            <element signature="e#596#1081#0" expanded="false" />
-            <element signature="e#1084#1602#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="108">
+          <caret line="6" column="19" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="20" column="22" selection-start-line="20" selection-start-column="22" selection-end-line="20" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="8" column="33" selection-start-line="8" selection-start-column="33" selection-end-line="8" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/http_response.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/io.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="20" column="31" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
+        <state relative-caret-position="360">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/constants.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/io.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="102" column="0" selection-start-line="102" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
+        <state relative-caret-position="261">
+          <caret line="179" column="8" selection-start-line="179" selection-start-column="8" selection-end-line="179" selection-end-column="8" />
           <folding>
             <element signature="e#99#151#0" expanded="false" />
             <element signature="e#99#348#0" expanded="false" />
@@ -854,48 +832,60 @@
             <element signature="e#590#1271#0" expanded="false" />
             <element signature="e#1273#1731#0" expanded="false" />
             <element signature="e#1733#1888#0" expanded="false" />
+            <element signature="e#1733#2623#0" expanded="false" />
             <element signature="e#2625#2722#0" expanded="false" />
             <element signature="e#2625#2901#0" expanded="false" />
             <element signature="e#2903#2984#0" expanded="false" />
+            <element signature="e#2903#3102#0" expanded="false" />
             <element signature="e#3104#3136#0" expanded="false" />
-            <element signature="e#3104#3284#0" expanded="false" />
-            <element signature="e#3878#3922#0" expanded="false" />
+            <element signature="e#3286#3418#0" expanded="false" />
+            <element signature="e#3773#3817#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/http_response.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="59" column="60" selection-start-line="59" selection-start-column="60" selection-end-line="59" selection-end-column="60" />
+          <folding>
+            <element signature="e#28#134#0" expanded="false" />
+            <element signature="e#28#536#0" expanded="false" />
+            <element signature="e#538#602#0" expanded="false" />
+            <element signature="e#538#1111#0" expanded="false" />
+            <element signature="e#1113#1324#0" expanded="false" />
+            <element signature="e#1113#2303#0" expanded="false" />
+            <element signature="e#2305#2376#0" expanded="false" />
+            <element signature="e#2305#2812#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/thread_job.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="1" column="30" selection-start-line="1" selection-start-column="30" selection-end-line="1" selection-end-column="30" />
+          <folding>
+            <element signature="e#63#97#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/thread_job.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="526">
-          <caret line="380" column="32" selection-start-line="380" selection-start-column="32" selection-end-line="380" selection-end-column="32" />
+        <state relative-caret-position="0">
+          <caret line="0" column="23" selection-start-line="0" selection-start-column="23" selection-end-line="0" selection-end-column="23" />
           <folding>
-            <element signature="e#0#34#0" expanded="true" />
-            <element signature="e#211#307#0" expanded="false" />
-            <element signature="e#309#472#0" expanded="false" />
-            <element signature="e#474#676#0" expanded="false" />
-            <element signature="e#474#1474#0" expanded="false" />
-            <element signature="e#1476#1803#0" expanded="false" />
-            <element signature="e#1805#1997#0" expanded="false" />
-            <element signature="e#1805#3335#0" expanded="false" />
-            <element signature="e#3337#3401#0" expanded="false" />
-            <element signature="e#3337#3966#0" expanded="false" />
-            <element signature="e#3968#4111#0" expanded="false" />
-            <element signature="e#3968#5098#0" expanded="false" />
-            <element signature="e#5100#6302#0" expanded="false" />
-            <element signature="e#6304#6350#0" expanded="false" />
-            <element signature="e#6304#7270#0" expanded="false" />
-            <element signature="e#7272#7429#0" expanded="false" />
-            <element signature="e#7272#8222#0" expanded="false" />
-            <element signature="e#8224#8276#0" expanded="false" />
+            <element signature="e#25#121#0" expanded="false" />
+            <element signature="e#123#286#0" expanded="false" />
+            <element signature="e#288#615#0" expanded="false" />
+            <element signature="e#617#809#0" expanded="false" />
+            <element signature="e#2250#3760#0" expanded="false" />
+            <element signature="e#3762#3808#0" expanded="false" />
+            <element signature="e#3762#4726#0" expanded="false" />
+            <element signature="e#4728#4780#0" expanded="false" />
+            <marker date="1474236975579" expanded="false" signature="850:2248" ph="{...}" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="13" column="25" selection-start-line="13" selection-start-column="25" selection-end-line="13" selection-end-column="25" />
-          <folding />
         </state>
       </provider>
     </entry>

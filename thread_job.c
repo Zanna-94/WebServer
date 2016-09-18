@@ -1,12 +1,4 @@
-#include <MagickWand/MagickWand.h>
-#include "server.h"
-#include <http_parser.h>
 #include "thread_job.h"
-#include "lib/io.h"
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <lru-cache.h>
 
 void free_resources(data_t *data) {
 
@@ -25,43 +17,6 @@ void close_connection(int sock) {
         pthread_exit(NULL);
     }
 
-}
-
-/*
- * Parse the header's field "Accept" of http message to find quality factor
- * for "Image/*"
- * @param accept field Accept in http message*s header
- * @return quality factor for image/jpeg format
- */
-float find_quality_factor(char *accept, char *image_extension) {
-
-
-    char *token, *ptr, field[MAXLINE];
-    float quality_factor = 1;
-
-    strcat(field, "image/");
-    strcat(field, image_extension);
-
-    if ((ptr = strstr(accept, field)) != NULL) {
-        token = ptr + strlen(field) + 1;
-    } else if ((ptr = strstr(accept, "*/*")) != NULL) {
-        token = ptr + strlen("*/*") + 1;
-    } else return quality_factor;
-
-    removeSpaces(token);
-    if ((token = strstr(token, "q=")) != NULL) {
-        token += strlen("q=");
-
-        errno = 0;
-        quality_factor = strtof(token, NULL);
-        if (errno != 0) {
-            perror("strtof");
-            pthread_exit(NULL);
-        }
-    }
-
-//    printf("%s: %.2f\n", "quality factor found", quality_factor);
-    return quality_factor;
 }
 
 unsigned int find_content_length(int fd) {
@@ -95,12 +50,13 @@ int convert_image(converted_image *img) {
     char path_orig[128];
 
     bzero(path_tmp, 0);
-    strcpy(path_tmp, CACHE);
-    strcat(path_tmp, "image.XXXXXX");
-
+    strcpy(path_tmp, ROOT());
+    strcat(path_tmp, CACHE);
+    strcat(path_tmp, "/image.XXXXXX");
 
     bzero(path_orig, 0);
-    strcpy(path_orig, ROOT);
+    strcpy(path_orig, ROOT());
+    strcat(path_orig, CONTENT_DIR);
     strcat(path_orig, img->name);
 
     MagickWandGenesis();
@@ -136,79 +92,12 @@ int convert_image(converted_image *img) {
     /* Clean up */
     if (m_wand)m_wand = DestroyMagickWand(m_wand);
 
-    strcpy(img->temp_file, basename(path_tmp));
+    strcpy(img->temp_file, "/");
+    strcat(img->temp_file, basename(path_tmp));
 
     MagickWandTerminus();
 
     return fd;
-}
-
-/*
- * send http message with error code 404 (file not found)
- */
-void send_not_found(int sock) {
-
-    char *response;
-    int sent;
-
-    response = malloc(MSG_SIZE);
-    if (response == NULL) {
-        fprintf(stderr, "error in memory allocation");
-        pthread_exit(NULL);
-    }
-
-
-    sprintf(response, "%s\r\n%s\r\n\r\n%s", "HTTP/1.1 404 Not Found", "Connection: close",
-            "<html><body><h1>404 Page Not Found. </h1></body></html>");
-    sent = (int) writen(sock, response, strlen(response));
-    if (sent <= 0) {
-        fprintf(stderr, "error in writen");
-        pthread_exit(NULL);
-    }
-
-    free(response);
-
-}
-
-/*
- * Send an http message with a file as body.
- * @fd file descriptor for the file to send
- * @sock connection socket with the client node
- */
-void send_file(int fd, int sock, unsigned int content_length) {
-
-    char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
-    int sent;
-
-    /* create http header*/
-    sprintf(response, "%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK", "Connection: close", "Content-Length",
-            content_length);
-
-    /* map file */
-    mapped_file = mmap(NULL, (size_t) content_length, PROT_READ, MAP_PRIVATE, fd, 0);
-
-    /* send headers*/
-    sent = (int) writen(sock, response, strlen(response));
-    if (sent <= 0) {
-        fprintf(stderr, "error in writen");
-        pthread_exit(NULL);
-    }
-
-    /* send file as body */
-    sent = (int) writen(sock, mapped_file, (size_t) content_length);
-    if (sent <= 0) {
-        fprintf(stderr, "error in writen");
-        pthread_exit(NULL);
-    }
-
-    if (munmap(mapped_file, (size_t) content_length) == -1) {
-        perror("munmap");
-        pthread_exit(NULL);
-    }
-
-    if (close(fd) == -1)
-        perror("close\n");
-
 }
 
 void convert_and_send(data_t *data, char *path) {
@@ -221,25 +110,33 @@ void convert_and_send(data_t *data, char *path) {
     converted_image *img = malloc(sizeof(converted_image));
     if (img == NULL) {
         fprintf(stderr, "error in memory allocation");
-        pthread_exit(NULL);
+        pthread_exit((void *) 1);
     }
 
     strcpy(img->name, data->msg->request_path);
     format = get_filename_ext(img->name);
     img->quality_factor = find_quality_factor(data->msg->accept, format);
+    if (img->quality_factor == -1) {
+        fprintf(stderr, " error parsing accept field. quality factor cannot be found\n");
+        pthread_exit((void *) 1);
+    }
 
     file_tmp = find_in_cache(img);
     if (file_tmp == NULL) {
         /* file not found in cache */
+        printf("[*] Image not found in cache\n");
+
         fd = convert_image(img);
         put_in_cache(img);
 
     } else {
         /* file found in cache */
-
         /* build image path */
-        strcpy(path, CACHE);
+        strcpy(path, ROOT());
+        strcat(path, CACHE);
         strcat(path, file_tmp);
+
+        printf("[*] Image found in cache: %s\n", path);
 
         fd = open_file(path);
         if (fd == -1) {
@@ -255,7 +152,7 @@ void convert_and_send(data_t *data, char *path) {
     }
 
     content_length = find_content_length(fd);
-    send_file(fd, data->sock, content_length);
+    send_ok(fd, data->sock, content_length);
 
     free(img);
 
@@ -271,29 +168,29 @@ void manage_request(data_t *data, http_parser *parser) {
     unsigned int content_length;
 
     if (strcmp(filename, "/") == 0) {
-        send_not_found(data->sock);
+        send_no_content(data->sock);
         return;
     }
 
-    if (strcmp(filename, "favicon.ico") == 0) {
+    if (strcmp(filename, "/favicon.ico") == 0) {
         return;
     }
 
-    strcpy(path, ROOT);
+    strcpy(path, ROOT());
+    strcat(path, CONTENT_DIR);
     strcat(path, filename);
 
     if (exist(path)) {
 
-        if (is_image(filename)) {
+        if (isImage(filename)) {
 
-            printf("is Image\n");
             convert_and_send(data, path);
 
         } else {
 
             fd = open_file(path);
             content_length = find_content_length(fd);
-            send_file(fd, data->sock, content_length);
+            send_ok(fd, data->sock, content_length);
 
             data->log->bytes = content_length;
         }
@@ -313,41 +210,6 @@ void manage_request(data_t *data, http_parser *parser) {
 }
 
 /*
- *
- * @param data thread custom data
- * @param http_msg strcture representing http message
- * @param recved #byte of the http message read from socket
- */
-http_parser *parse(data_t *data, char *http_msg, size_t recved) {
-
-    http_parser_settings settings;
-    http_parser *parser = malloc(sizeof(http_parser));
-    if (parser == NULL) {
-        fprintf(stderr, "error in memory allocation");
-        pthread_exit(NULL);
-    }
-
-    /* setting callbacks */
-    settings.on_header_field = on_header_field;
-    settings.on_header_value = on_header_value;
-    settings.on_url = on_url;
-
-    /* set message type (HTTP_REQUEST) */
-    http_parser_init(parser, HTTP_REQUEST);
-    parser->data = data;
-
-    /* parse */
-    parser->http_errno = 0;
-    http_parser_execute(parser, &settings, http_msg, recved);
-    if (parser->http_errno != 0) {
-        fprintf(stderr, "http_parser_execute error\n");
-        pthread_exit(NULL);
-    }
-
-    return parser;
-}
-
-/*
  * Receive the request message and parses it.
  */
 void *connection_manager(void *arg) {
@@ -356,7 +218,7 @@ void *connection_manager(void *arg) {
     http_parser *parser;
     int nread, n;
     fd_set rset;
-    char raw_msg[MSG_SIZE+1];
+    char raw_msg[MSG_SIZE + 1];
     struct timeval timeout;
 
     pthread_cleanup_push(th_exit, NULL) ;
@@ -373,7 +235,7 @@ void *connection_manager(void *arg) {
                     printf("[*] Client sends not data: Connection closed\n");
                     close_connection(data->sock);
                     free_resources(data);
-                    pthread_exit(NULL);
+                    pthread_exit((void *) 0);
                 }
 
                 /* read http header from connsd socket and store it in msg buffer */
@@ -388,6 +250,10 @@ void *connection_manager(void *arg) {
 
                 /* parsing http header */
                 parser = parse(data, raw_msg, strlen(raw_msg));
+                if (parser == NULL) {
+                    fprintf(stderr, "parse return NULL: parsing error\n");
+                    pthread_exit((void *) 1);
+                }
 
                 data->log->request = get_request(raw_msg);
 
@@ -403,7 +269,7 @@ void *connection_manager(void *arg) {
 
             close_connection(data->sock);
             free_resources(data);
-            pthread_exit(NULL);
+            pthread_exit((void *) 0);
 
     pthread_cleanup_pop(0);
 

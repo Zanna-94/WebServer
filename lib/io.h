@@ -26,7 +26,7 @@ int exist(char *);
 
 char *get_filename_ext(char *);
 
-int is_image(char *);
+int isImage(char *);
 
 char *get_request(char *msg);
 

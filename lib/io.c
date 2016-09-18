@@ -169,26 +169,19 @@ char *get_filename_ext(char *filename) {
  * @param filename is the path of the file
  * @return 0 if true, not-zero if false
  */
-int is_image(char *filename) {
-
+int isImage(char *file) {
     char *extension[] = {"jpg", "jpeg", "png", "svg", NULL};
     char *format;
-    int i;
-
-    /* test if the file exist in filesystem */
-    if (!exist(filename))
-        return 0;
+    int i = 0;
 
     /* test file extension */
-    format = get_filename_ext(filename);
-    for (i = 0;; i++) {
+    format = get_filename_ext(file);
+    while (extension[i] != NULL) {
 
-        if (extension[i] == NULL)
-            break;
-
-        if (strcmp(format, extension[i]) == 0)
+        if (strncmp(format, extension[i], strlen(extension[i])) == 0)
             return 1;
 
+        i++;
     }
 
     return 0;

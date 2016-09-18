@@ -1,13 +1,4 @@
-#include <pthread.h>
 #include "server.h"
-#include <signal.h>
-#include "lib/lock_fcntl.h"
-#include <netinet/in.h>
-#include <lru-cache.h>
-#include <arpa/inet.h>
-#include <ipc_sem.h>
-#include <poll.h>
-#include "sig_handler.h"
 
 /*------------------------------------------------------------------------
  * Program:   WebServer

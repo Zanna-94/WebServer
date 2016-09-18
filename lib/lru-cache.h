@@ -1,10 +1,13 @@
 #ifndef WEBSERVER_SHARED_DB_LIST_H
 #define WEBSERVER_SHARED_DB_LIST_H
 
+#include <stdio.h>
+#include <unistd.h>
 #include <sys/shm.h>
+#include <string.h>
 #include <errno.h>
 #include <pthread.h>
-#include "../thread_job.h"
+#include "../constants.h"
 
 #define MAX_SHM_ID_NUM  10
 

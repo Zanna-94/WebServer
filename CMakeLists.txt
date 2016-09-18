@@ -3,8 +3,8 @@ project(WebServer)
 
 set(CMAKE_C_COMPILER "/usr/bin/gcc")
 
-set(SOURCE_FILES lib/logging.c lib/lru-cache.c lib/io.c server.c lib/lock_fcntl.c sig_handler.c thread_job.c parser_callbacks.c
-        lib/ipc_sem.c)
+set(SOURCE_FILES lib/logging.c lib/lru-cache.c lib/io.c server.c lib/lock_fcntl.c sig_handler.c thread_job.c parser.c
+        lib/ipc_sem.c constants.h http_response.c)
 
 set(CMAKE_USE_PTHREADS_INIT true)
 set(CMAKE_USE_PTHREADS_INIT ON)
@@ -14,6 +14,7 @@ find_package(Threads REQUIRED)
 include_directories(lib)
 include_directories(/usr/local/include)
 include_directories(/usr/local/include/ImageMagick-7)
+include_directories(wurfl)
 
 add_executable(server ${SOURCE_FILES})
 add_executable(client client.c lib/io.c)
