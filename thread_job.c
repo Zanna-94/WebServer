@@ -124,7 +124,6 @@ void convert_and_send(data_t *data, char *path) {
     file_tmp = find_in_cache(img);
     if (file_tmp == NULL) {
         /* file not found in cache */
-        printf("[*] Image not found in cache\n");
 
         fd = convert_image(img);
         put_in_cache(img);
@@ -135,8 +134,6 @@ void convert_and_send(data_t *data, char *path) {
         strcpy(path, ROOT());
         strcat(path, CACHE);
         strcat(path, file_tmp);
-
-        printf("[*] Image found in cache: %s\n", path);
 
         fd = open_file(path);
         if (fd == -1) {
@@ -161,24 +158,31 @@ void convert_and_send(data_t *data, char *path) {
 /*
  * Manage the connection with a client.
  */
-void manage_request(data_t *data, http_parser *parser) {
+void manage_request(data_t *data) {
 
     char *filename = data->msg->request_path, path[128];
     int fd;
     unsigned int content_length;
-
-    if (strcmp(filename, "/") == 0) {
-        send_no_content(data->sock);
-        return;
-    }
-
     if (strcmp(filename, "/favicon.ico") == 0) {
         return;
     }
 
     strcpy(path, ROOT());
     strcat(path, CONTENT_DIR);
+
+    if (strcmp(filename, "/") == 0) {
+        strcat(path, "/index.html");
+        fd = open_file(path);
+        content_length = find_content_length(fd);
+        send_ok(fd, data->sock, content_length);
+
+        data->log->bytes = content_length;
+        data->log->status = 200;
+        return;
+    }
+
     strcat(path, filename);
+
 
     if (exist(path)) {
 
@@ -227,45 +231,35 @@ void *connection_manager(void *arg) {
             FD_ZERO(&rset);
             FD_SET(data->sock, &rset);
 
-            do {
+            /* if no message are received in timeout seconds, the connection is closed */
+            n = select(data->sock + 1, &rset, NULL, NULL, &timeout);
+            if (n == 0) {
+                printf("[*] Client sends not data: Connection closed\n");
+                close_connection(data->sock);
+                free_resources(data);
+                pthread_exit((void *) 0);
+            }
 
-                /* if no message are received in timeout seconds, the connection is closed */
-                n = select(data->sock + 1, &rset, NULL, NULL, &timeout);
-                if (n == 0) {
-                    printf("[*] Client sends not data: Connection closed\n");
-                    close_connection(data->sock);
-                    free_resources(data);
-                    pthread_exit((void *) 0);
-                }
+            /* read http header from connsd socket and store it in msg buffer */
+            memset(raw_msg, '\0', MAXLINE);
+            nread = receive_msg_h(data->sock, raw_msg);
+            if (nread == 0) {
+                // connection closed from client side
+                pthread_exit((void *) 1);
+            }
 
-                /* read http header from connsd socket and store it in msg buffer */
-                memset(raw_msg, '\0', MAXLINE);
-                nread = receive_msg_h(data->sock, raw_msg);
-                if (nread == 0) {
-                    // connection closed from client side
-                    pthread_exit(NULL);
-                }
+            /* parsing http header */
+            parser = parse(data, raw_msg, strlen(raw_msg));
+            if (parser == NULL) {
+                fprintf(stderr, "parse return NULL: parsing error\n");
+                pthread_exit((void *) 1);
+            }
 
-                printf("%s\n\n", raw_msg);
+            data->log->request = get_request(raw_msg);
 
-                /* parsing http header */
-                parser = parse(data, raw_msg, strlen(raw_msg));
-                if (parser == NULL) {
-                    fprintf(stderr, "parse return NULL: parsing error\n");
-                    pthread_exit((void *) 1);
-                }
-
-                data->log->request = get_request(raw_msg);
-
-                /* For HTTP/1.1 persistent connection is the default behavior*/
-                if (parser->type == HTTP_REQUEST)
-                    manage_request(data, parser);
-
-
-                printf("%s\n\n", "########################");
-                fflush(stdout);
-            } while (http_should_keep_alive(parser));
-
+            /* For HTTP/1.1 persistent connection is the default behavior*/
+            if (parser->type == HTTP_REQUEST)
+                manage_request(data);
 
             close_connection(data->sock);
             free_resources(data);

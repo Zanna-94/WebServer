@@ -1,5 +1,4 @@
 #include "http_response.h"
-
 /*
  * @param fd file to find the date of last modification
  * @return http header field Last-Modified.
@@ -20,7 +19,23 @@ char *LastModified_line(int fd) {
     tm = gmtime(&attr.st_mtime);
     strftime(buf, MAXLINE, "Last-Modified: %a, %d %b %Y %H:%M:%S %Z", tm);
 
-    printf("%s\n", buf);
+    return buf;
+}
+
+char *get_date_line() {
+    char *buf;
+    struct tm *ts;
+    size_t last;
+    time_t timestamp = time(NULL);
+
+    buf = malloc(MAXLINE);
+    if (buf == NULL) {
+        fprintf(stderr, "error in memory allocation\n");
+        return NULL;
+    }
+
+    ts = localtime(&timestamp);
+    strftime(buf, MAXLINE, "Date: %a, %d %b %Y %H:%M:%S %Z", ts);
 
     return buf;
 }
@@ -39,7 +54,7 @@ void send_not_found(int sock) {
     }
 
 
-    sprintf(response, "%s\r\n%s\r\n\r\n%s", "HTTP/1.1 404 Not Found", "Connection: close",
+    sprintf(response, "%s\r\n%s\r\n%s\r\n\r\n%s", "HTTP/1.1 404 Not Found", "Server: ZannaServer", "Connection: close",
             "<html><body><h1>404 Page Not Found. </h1></body></html>");
     sent = (int) writen(sock, response, strlen(response));
     if (sent <= 0) {
@@ -62,9 +77,10 @@ void send_ok(int fd, int sock, unsigned int content_length) {
     char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
     int sent;
 
-    /* create http header*/
-    sprintf(response, "%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK", LastModified_line(fd), "Connection: close",
-            "Content-Length", content_length);
+
+    sprintf(response, "%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK",
+            "Server: ZannaServer", get_date_line(), LastModified_line(fd),
+            "Connection: close", "Content-Length", content_length);
 
     /* map file */
     mapped_file = mmap(NULL, (size_t) content_length, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -108,7 +124,7 @@ void send_no_content(int sock) {
     }
 
 
-    sprintf(response, "%s\r\n%s\r\n\r\n", "HTTP/1.1 204 No Content", "Connection: close");
+    sprintf(response, "%s\r\n%s\r\n%s\r\n\r\n", "HTTP/1.1 204 No Content", "Server: ZannaServer", "Connection: close");
     sent = (int) writen(sock, response, strlen(response));
     if (sent <= 0) {
         fprintf(stderr, "error in writen");
