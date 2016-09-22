@@ -3,7 +3,7 @@
 /*------------------------------------------------------------------------
  * Program:   WebServer
  * Purpose:   Adapting static content according to the characteristics of the client device
- * Usage:    ./server  <helper number> <port number[xxxx]>
+ * Syntax:    -
  *-----------------------------------------------------------------------*/
 
 pthread_t tid[THREAD_LIMIT];
@@ -99,7 +99,7 @@ data_t *allocate_data_t() {
     return data;
 }
 
-void create_thread(int socket, struct sockaddr_in *cliaddr) {
+void *create_thread(int socket, struct sockaddr_in *cliaddr) {
 
     data_t *data = allocate_data_t();
 
@@ -116,8 +116,10 @@ void create_thread(int socket, struct sockaddr_in *cliaddr) {
 
     if (pthread_create(&tid[thread_limit], NULL, connection_manager, data) != 0) {
         fprintf(stderr, "Error returned by pthread_create()\n");
-        exit(EXIT_FAILURE);
+        return (void *) -1;
     }
+
+    return (void *) 0;
 
 }
 
@@ -135,7 +137,7 @@ int ctrl_load(int listsck) {
 
     bsem_get(semid);
 
-    created = (*process_count) - children_n;
+    created = (*process_count) - START_SERVER;
     load = (*thread_count) / THREAD_LIMIT;   /* number of child to have plus*/
     tocreate = load - created;               /* number of child to create */
 
@@ -164,7 +166,7 @@ int im_wasteful(int i) {
 
     load = (*thread_count) / THREAD_LIMIT;    /* number of child to have plus*/
 
-    if (i + 1 >= (load + children_n))
+    if (i + 1 >= (load + START_SERVER))
         return 1;
 
     return 0;
@@ -212,7 +214,7 @@ void child_main(int i, int listensd) {
             bsem_get(semid);
 
             /* Test if process has reason to exist */
-            if (i > children_n && im_wasteful(i)) {
+            if (i > START_SERVER && im_wasteful(i)) {
                 int n;
                 for (n = 0; n < thread_limit; n++)
                     pthread_join(tid[n], NULL);
@@ -241,10 +243,9 @@ void child_main(int i, int listensd) {
                 exit(EXIT_FAILURE);
             }
 
-            /* locking release */
-            my_lock_release();
+            my_lock_release();              /* locking release */
 
-            create_thread(connsd, cliaddr);
+            create_thread(connsd, cliaddr)
 
         }
 
@@ -269,41 +270,6 @@ int main(int argc, char **argv) {
     int n;
     struct sockaddr_in servaddr;        /* address structure for the server */
 
-    switch (argc) {
-
-        case (1) :
-            // if not specified, use default port
-            port_n = SERV_PORT;
-            // if not specified, use default number of helper
-            children_n = START_SERVER;
-            break;
-
-        case (2) :
-            // use specified number of helper
-            children_n = atoi(argv[1]);
-            /* if number is not between 1 and 8 */
-            if (children_n < 1 || children_n > 8) {
-                printf("Insert a number of children between 1 and 8.\n"
-                               "Usage : ./server <helper number> <port number[xxxx]>");
-                exit(EXIT_FAILURE);
-            }
-
-            // if not specified, use default port
-            port_n = SERV_PORT;
-            break;
-
-        case (3):
-            /* use specified number of helper   */
-            children_n = atoi(argv[1]);
-            /* use specified port   */
-            port_n = (in_port_t) atoi(argv[2]);
-            break;
-
-        default:
-            printf("Usage : ./server <start children> <port number[xxxx]>");
-            exit(EXIT_FAILURE);
-    }
-
     /* Listen socket for TCP connection */
     if ((listensd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket can't be created");
@@ -318,7 +284,7 @@ int main(int argc, char **argv) {
     memset((void *) &servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY); /* INADDRE_ANY to bind socket to all local interface */
-    servaddr.sin_port = htons(port_n);
+    servaddr.sin_port = htons(SERV_PORT);
 
     /* bind listening socket to IP addresses and port number specified in sockaddr struct */
     if ((bind(listensd, (struct sockaddr *) &servaddr, sizeof(servaddr))) < 0) {
@@ -345,10 +311,10 @@ int main(int argc, char **argv) {
     /* get ipc mutex */
     semid = get_ipc_semaphore();
 
-    *process_count = children_n;
+    *process_count = START_SERVER;
 
     /* initialize process pool */
-    for (n = 0; n < children_n; n++)
+    for (n = 0; n < START_SERVER; n++)
         pids[n] = child_make(n, listensd);
 
 
@@ -360,7 +326,7 @@ int main(int argc, char **argv) {
     printf("SERVER START!\n");
     for (;;) {
         ctrl_load(listensd);
-        sleep(1);    /* fanno tutto i processi figli */
+        usleep(500);    /* fanno tutto i processi figli */
     }
 
 }

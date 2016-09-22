@@ -8,7 +8,7 @@
 #define MSG_SIZE        1024
 
 #define ROOT()            get_current_dir_name()
-#define CONTENT_DIR     "/image"
+#define CONTENT_DIR     "/content"
 #define CACHE           "/cache"
 
 typedef struct converted_image {

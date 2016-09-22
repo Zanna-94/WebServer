@@ -59,6 +59,8 @@ int convert_image(converted_image *img) {
     strcat(path_orig, CONTENT_DIR);
     strcat(path_orig, img->name);
 
+    printf("%s\n", path_orig);
+
     MagickWandGenesis();
 
     m_wand = NewMagickWand();

@@ -19,7 +19,6 @@
       <sourceFolder url="file://$MODULE_DIR$/lib/io.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/http_response.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/http_response.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/client.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/server.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/thread_job.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />

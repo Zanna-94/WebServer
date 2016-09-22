@@ -17,8 +17,6 @@ include_directories(/usr/local/include/ImageMagick-7)
 include_directories(wurfl)
 
 add_executable(server ${SOURCE_FILES})
-add_executable(client client.c lib/io.c)
-
 
 target_link_libraries(server MagickWand-7.Q16HDRI)
 target_link_libraries(server http_parser)

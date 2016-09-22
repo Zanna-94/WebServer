@@ -28,8 +28,10 @@
 #define SERVER_LIMIT    16
 #define THREAD_LIMIT    64
 
-
 void th_exit(void *);
+
+uint16_t port_n;
+int children_n;
 
 static int pids[SERVER_LIMIT];
 
