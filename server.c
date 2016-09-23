@@ -345,7 +345,7 @@ int main(int argc, char **argv) {
     /* get ipc mutex */
     semid = get_ipc_semaphore();
 
-    *process_count = children_n;
+    *process_count = (unsigned int) children_n;
 
     /* initialize process pool */
     for (n = 0; n < children_n; n++)

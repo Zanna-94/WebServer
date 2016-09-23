@@ -14,7 +14,6 @@ find_package(Threads REQUIRED)
 include_directories(lib)
 include_directories(/usr/local/include)
 include_directories(/usr/local/include/ImageMagick-7)
-include_directories(wurfl)
 
 add_executable(server ${SOURCE_FILES})
 

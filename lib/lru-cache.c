@@ -200,3 +200,14 @@ char *find_in_cache(converted_image *img) {
 
     return NULL;
 }
+
+void clean(char *dir) {
+
+    char cd_cmd[36];
+
+    memset(cd_cmd, 0, 36);
+    sprintf(cd_cmd, "cd %s", dir);
+
+    system(cd_cmd);
+    system("rm *");
+}

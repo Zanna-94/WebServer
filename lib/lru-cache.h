@@ -27,4 +27,6 @@ void move_to_head(node *);
 
 char *find_in_cache(converted_image *);
 
+void clean(char *dir);
+
 #endif //WEBSERVER_SHARED_DB_LIST_H

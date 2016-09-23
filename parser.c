@@ -134,5 +134,8 @@ http_parser *parse(data_t *data, char *http_msg, size_t recved) {
         return NULL;
     }
 
+    printf("parser ending\n");
+    fflush(stdout);
+
     return parser;
 }

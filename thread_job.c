@@ -59,8 +59,6 @@ int convert_image(converted_image *img) {
     strcat(path_orig, CONTENT_DIR);
     strcat(path_orig, img->name);
 
-    printf("%s\n", path_orig);
-
     MagickWandGenesis();
 
     m_wand = NewMagickWand();
@@ -153,55 +151,53 @@ void convert_and_send(data_t *data, char *path) {
     content_length = find_content_length(fd);
     send_ok(fd, data->sock, content_length);
 
-    free(img);
-
 }
 
 /*
  * Manage the connection with a client.
  */
-void manage_request(data_t *data) {
+void manage_request(data_t *data, unsigned int request_type) {
 
     char *filename = data->msg->request_path, path[128];
     int fd;
     unsigned int content_length;
-    if (strcmp(filename, "/favicon.ico") == 0) {
-        return;
-    }
 
     strcpy(path, ROOT());
     strcat(path, CONTENT_DIR);
-
-    if (strcmp(filename, "/") == 0) {
-        strcat(path, "/index.html");
-        fd = open_file(path);
-        content_length = find_content_length(fd);
-        send_ok(fd, data->sock, content_length);
-
-        data->log->bytes = content_length;
-        data->log->status = 200;
-        return;
-    }
-
     strcat(path, filename);
 
 
     if (exist(path)) {
 
-        if (isImage(filename)) {
+            printf("file found in %s\n", path);
 
-            convert_and_send(data, path);
 
-        } else {
+            if (strcmp(filename, "/") == 0) {
+                strcat(path, "index.html");
+                fd = open_file(path);
+                content_length = find_content_length(fd);
+                send_ok(fd, data->sock, content_length);
 
-            fd = open_file(path);
-            content_length = find_content_length(fd);
-            send_ok(fd, data->sock, content_length);
+                data->log->bytes = content_length;
+                data->log->status = 200;
+                logging(data->log);
+                return;
+            }
 
-            data->log->bytes = content_length;
-        }
+            if (isImage(filename)) {
 
-        data->log->status = 200;
+                convert_and_send(data, path);
+
+            } else {
+
+                fd = open_file(path);
+                content_length = find_content_length(fd);
+                send_ok(fd, data->sock, content_length);
+
+                data->log->bytes = content_length;
+            }
+
+            data->log->status = 200;
 
     } else {
 
@@ -222,46 +218,52 @@ void *connection_manager(void *arg) {
 
     data_t *data = arg;
     http_parser *parser;
-    int nread, n;
+    int nread;
     fd_set rset;
     char raw_msg[MSG_SIZE + 1];
     struct timeval timeout;
 
     pthread_cleanup_push(th_exit, NULL) ;
 
-            timeout.tv_sec = TIMEOUT;
-            FD_ZERO(&rset);
-            FD_SET(data->sock, &rset);
+            do {
 
-            /* if no message are received in timeout seconds, the connection is closed */
-            n = select(data->sock + 1, &rset, NULL, NULL, &timeout);
-            if (n == 0) {
-                printf("[*] Client sends not data: Connection closed\n");
-                close_connection(data->sock);
-                free_resources(data);
-                pthread_exit((void *) 0);
-            }
+                timeout.tv_sec = TIMEOUT;
+                FD_ZERO(&rset);
+                FD_SET(data->sock, &rset);
 
-            /* read http header from connsd socket and store it in msg buffer */
-            memset(raw_msg, '\0', MAXLINE);
-            nread = receive_msg_h(data->sock, raw_msg);
-            if (nread == 0) {
-                // connection closed from client side
-                pthread_exit((void *) 1);
-            }
+                /* if no message are received in timeout seconds, the connection is closed */
+                if (select(data->sock + 1, &rset, NULL, NULL, &timeout) == 0) {
+                    printf("[*] Client sends not data: Connection closed\n");
+                    close_connection(data->sock);
+                    free_resources(data);
+                    pthread_exit((void *) 0);
+                }
 
-            /* parsing http header */
-            parser = parse(data, raw_msg, strlen(raw_msg));
-            if (parser == NULL) {
-                fprintf(stderr, "parse return NULL: parsing error\n");
-                pthread_exit((void *) 1);
-            }
+                /* read http header from connsd socket and store it in msg buffer */
+                memset(raw_msg, '\0', MAXLINE);
+                nread = receive_msg_h(data->sock, raw_msg);
+                if (nread == 0) {
+                    // connection closed from client side
+                    pthread_exit((void *) 1);
+                }
 
-            data->log->request = get_request(raw_msg);
+                printf("%s\n\n", raw_msg);
+                fflush(stdout);
 
-            /* For HTTP/1.1 persistent connection is the default behavior*/
-            if (parser->type == HTTP_REQUEST)
-                manage_request(data);
+                /* parsing http header */
+                parser = parse(data, raw_msg, strlen(raw_msg));
+                if (parser == NULL) {
+                    fprintf(stderr, "parse return NULL: parsing error\n");
+                    pthread_exit((void *) 1);
+                }
+
+                data->log->request = get_request(raw_msg);
+
+                /* For HTTP/1.1 persistent connection is the default behavior*/
+                if (parser->type == HTTP_REQUEST)
+                    manage_request(data, parser->type);
+
+            } while (http_should_keep_alive(parser));
 
             close_connection(data->sock);
             free_resources(data);
