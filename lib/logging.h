@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+
+#define LOG_FILE        "/log.txt"
 
 typedef struct log_t {
     char *host;
