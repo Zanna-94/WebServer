@@ -9,30 +9,12 @@ void free_resources(data_t *data) {
 
 void close_connection(int sock) {
 
-    int closed;
-    closed = close(sock);
-
+    int closed = close(sock);
     if (closed == -1) {
         perror("close");
         pthread_exit(NULL);
     }
 
-}
-
-unsigned int find_content_length(int fd) {
-
-    struct stat st;                 /* strcture to discover file's size */
-    int s;
-
-    /* get image size */
-    errno = 0;
-    s = fstat(fd, &st);
-    if (s == -1 || errno != 0) {
-        perror("fstat");
-        pthread_exit(NULL);
-    }
-
-    return (unsigned int) st.st_size;
 }
 
 /*
@@ -103,8 +85,7 @@ int convert_image(converted_image *img) {
 void convert_and_send(data_t *data, char *path) {
 
     char *format;
-    int fd;
-    unsigned int content_length;
+    int fd, content_length;
     char *file_tmp;
 
     converted_image *img = malloc(sizeof(converted_image));
@@ -148,19 +129,18 @@ void convert_and_send(data_t *data, char *path) {
 
     }
 
-    content_length = find_content_length(fd);
-    send_ok(fd, data->sock, content_length);
-
+    content_length = send_ok(fd, data->sock);
+    data->log->bytes = content_length;
 }
 
 /*
  * Manage the connection with a client.
  */
-void manage_request(data_t *data, unsigned int request_type) {
+void manage_request(data_t *data, unsigned int method) {
 
     char *filename = data->msg->request_path, path[128];
     int fd;
-    unsigned int content_length;
+    int content_length;
 
     strcpy(path, ROOT());
     strcat(path, CONTENT_DIR);
@@ -169,41 +149,56 @@ void manage_request(data_t *data, unsigned int request_type) {
 
     if (exist(path)) {
 
-            printf("file found in %s\n", path);
+        switch (method) {
 
+            case HTTP_GET:
 
-            if (strcmp(filename, "/") == 0) {
-                strcat(path, "index.html");
-                fd = open_file(path);
-                content_length = find_content_length(fd);
-                send_ok(fd, data->sock, content_length);
+                if (strcmp(filename, "/") == 0) {
+                    strcat(path, "index.html");
+                    fd = open_file(path);
+                    content_length = send_ok(fd, data->sock);
 
-                data->log->bytes = content_length;
+                    data->log->bytes = content_length;
+                }
+
+                if (isImage(filename))
+                    convert_and_send(data, path);
+                else {
+
+                    fd = open_file(path);
+                    content_length = send_ok(fd, data->sock);
+
+                    data->log->bytes = content_length;
+                }
+
                 data->log->status = 200;
-                logging(data->log);
-                return;
-            }
+                break;
 
-            if (isImage(filename)) {
+            case HTTP_HEAD:
+                send_ok_head(data->sock);
+                break;
 
-                convert_and_send(data, path);
-
-            } else {
-
-                fd = open_file(path);
-                content_length = find_content_length(fd);
-                send_ok(fd, data->sock, content_length);
-
-                data->log->bytes = content_length;
-            }
-
-            data->log->status = 200;
+            default:
+                break;
+        }
 
     } else {
 
-        send_not_found(data->sock);
+        switch (method) {
+            case HTTP_GET:
+                send_not_found(data->sock);
 
-        data->log->bytes = 0;
+                data->log->bytes = 0;
+                break;
+
+            case HTTP_HEAD:
+                send_not_found_head(data->sock);
+
+                break;
+            default:
+                break;
+        }
+
         data->log->status = 404;
 
     }
@@ -261,7 +256,7 @@ void *connection_manager(void *arg) {
 
                 /* For HTTP/1.1 persistent connection is the default behavior*/
                 if (parser->type == HTTP_REQUEST)
-                    manage_request(data, parser->type);
+                    manage_request(data, parser->method);
 
             } while (http_should_keep_alive(parser));
 

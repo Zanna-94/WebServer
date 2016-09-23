@@ -14,7 +14,7 @@ typedef struct log_t {
     char *host;
     char *request;
     unsigned int status;
-    unsigned int bytes;
+    int bytes;
 } log_t;
 
 void logging(log_t *);

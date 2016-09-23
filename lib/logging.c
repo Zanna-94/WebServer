@@ -60,9 +60,6 @@ void logging(log_t *log) {
     }
     strcat(log_path, LOG_FILE);
 
-    printf("%s\n", log_path);
-    fflush(stdout);
-
     log_file = fopen(log_path, "a");
     if (log_file == NULL) {
         fprintf(stderr, "open loggind file failed\n");

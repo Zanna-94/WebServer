@@ -1,4 +1,6 @@
+#include <errno.h>
 #include "http_response.h"
+
 /*
  * @param fd file to find the date of last modification
  * @return http header field Last-Modified.
@@ -40,13 +42,30 @@ char *get_date_line() {
     return buf;
 }
 
+unsigned int find_content_length(int fd) {
+
+    struct stat st;                 /* strcture to discover file's size */
+    int s;
+
+    /* get image size */
+    errno = 0;
+    s = fstat(fd, &st);
+    if (s == -1 || errno != 0) {
+        perror("fstat");
+        pthread_exit(NULL);
+    }
+
+    return (unsigned int) st.st_size;
+}
+
 /*
  * send http message with error code 404 (file not found)
  */
-void send_not_found(int sock) {
+int send_not_found(int sock) {
 
     char *response;
     int sent;
+    char *html = strdup("<html><body><h1>404 Page Not Found. </h1></body></html>");
 
     response = malloc(MSG_SIZE);
     if (response == NULL) {
@@ -54,15 +73,17 @@ void send_not_found(int sock) {
     }
 
 
-    sprintf(response, "%s\r\n%s\r\n%s\r\n\r\n%s", "HTTP/1.1 404 Not Found", "Server: ZannaServer", "Connection: close",
-            "<html><body><h1>404 Page Not Found. </h1></body></html>");
+    sprintf(response, "%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n%s", "HTTP/1.1 404 Not Found", "Server: ZannaServer", "Connection: close",
+            "Content-Length", (int) strlen(html), html);
+
     sent = (int) writen(sock, response, strlen(response));
     if (sent <= 0) {
-        fprintf(stderr, "error in writen");
+        fprintf(stderr, "error in writen\n");
     }
 
     free(response);
 
+    return (int) strlen(html);
 }
 
 /*
@@ -72,11 +93,10 @@ void send_not_found(int sock) {
  * @sock connection socket with the client node
  * @content_length size of the file to send
  */
-void send_ok(int fd, int sock, unsigned int content_length) {
+int send_ok(int fd, int sock) {
 
     char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
-    int sent;
-
+    int sent, content_length = find_content_length(fd);
 
     sprintf(response, "%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK",
             "Server: ZannaServer", get_date_line(), LastModified_line(fd),
@@ -88,13 +108,13 @@ void send_ok(int fd, int sock, unsigned int content_length) {
     /* send headers*/
     sent = (int) writen(sock, response, strlen(response));
     if (sent <= 0) {
-        fprintf(stderr, "error in writen");
+        fprintf(stderr, "error in writen\n");
     }
 
     /* send file as body */
     sent = (int) writen(sock, mapped_file, (size_t) content_length);
     if (sent <= 0) {
-        fprintf(stderr, "error in writen");
+        fprintf(stderr, "error in writen\n");
     }
 
     if (munmap(mapped_file, (size_t) content_length) == -1) {
@@ -108,6 +128,7 @@ void send_ok(int fd, int sock, unsigned int content_length) {
     if (close(fd) == -1)
         perror("close\n");
 
+    return content_length;
 }
 
 /*
@@ -127,8 +148,41 @@ void send_no_content(int sock) {
     sprintf(response, "%s\r\n%s\r\n%s\r\n\r\n", "HTTP/1.1 204 No Content", "Server: ZannaServer", "Connection: close");
     sent = (int) writen(sock, response, strlen(response));
     if (sent <= 0) {
-        fprintf(stderr, "error in writen");
+        fprintf(stderr, "error in writen\n");
     }
 
     free(response);
+}
+
+void send_ok_head(int sock) {
+
+    char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
+    int sent;
+
+    sprintf(response, "%s\r\n%s\r\n%s\r\n%s\r\n\r\n", "HTTP/1.1 200 OK", "Server: ZannaServer",
+            get_date_line(), "Connection: close");
+}
+
+void send_not_found_head(int sock) {
+
+    char *response;
+    int sent;
+    char *html = strdup("<html><body><h1>404 Page Not Found. </h1></body></html>");
+
+    response = malloc(MSG_SIZE);
+    if (response == NULL) {
+        fprintf(stderr, "error in memory allocation");
+    }
+
+
+    sprintf(response, "%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 404 Not Found", "Server: ZannaServer", "Connection: close",
+            "Content-Length", (int) strlen(html));
+
+    sent = (int) writen(sock, response, strlen(response));
+    if (sent <= 0) {
+        fprintf(stderr, "error in writen\n");
+    }
+
+    free(response);
+
 }

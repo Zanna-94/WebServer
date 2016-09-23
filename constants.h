@@ -21,10 +21,11 @@ typedef struct converted_image {
 typedef struct http_message {
 
     /* HEADER FIELD */
-    char host[MAXLINE];
-    char accept[MAXLINE];                   /* information about quality of accepted files */
-    char content_type[MAXLINE];             /* information about format of accepted files */
-    char *request_path;              /* only for request message */
+    char *host;
+    char *accept;                   /* information about quality of accepted files */
+    char *content_type;             /* information about format of accepted files */
+    char *user_agent;
+    char *request_path;             /* only for request message */
 
 } http_message;
 

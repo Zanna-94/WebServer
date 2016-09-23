@@ -11,10 +11,14 @@
 #include "constants.h"
 #include "io.h"
 
-void send_not_found(int);
+int send_not_found(int);
 
-void send_ok(int, int, unsigned int);
+int send_ok(int, int);
 
 void send_no_content(int);
+
+void send_ok_head(int sock);
+
+void send_not_found_head(int sock);
 
 #endif //WEBSERVER_HTTP_RESPONSE_H

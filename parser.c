@@ -33,14 +33,16 @@ int on_header_value(http_parser *parser, const char *at, size_t length) {
     http_message *message = data->msg;
 
     if (strcmp(data->last_field, "Host") == 0) {
-        strncpy(message->host, at, length);
+        message->host = strndup(at, length);
 
     } else if (strcmp(data->last_field, "Accept") == 0) {
-        strncpy(message->accept, at, length);
+        message->accept = strndup(at, length);
 
     } else if (strcmp(data->last_field, "Content-Type") == 0) {
-        strncpy(message->content_type, at, length);
-    }
+        message->content_type = strndup(at, length);
+
+    } else if (strcmp(data->last_field, "User-Agent") == 0)
+        message->user_agent = strndup(at, length);
 
     return 0;
 
@@ -133,9 +135,6 @@ http_parser *parse(data_t *data, char *http_msg, size_t recved) {
         fprintf(stderr, "http_parser_execute error\n");
         return NULL;
     }
-
-    printf("parser ending\n");
-    fflush(stdout);
 
     return parser;
 }
