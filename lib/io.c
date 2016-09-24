@@ -81,8 +81,12 @@ ssize_t writen(int fd, const void *buf, size_t n) {
             if ((nwritten < 0) && (errno == EINTR)) nwritten = 0;
             else return (-1);        /* errore */
         }
+        printf("mancanti: %d, scritti: %d\n", (int) nleft, (int) nwritten);
+
         nleft -= nwritten;
         ptr += nwritten;
+        printf("mancanti: %d, scritti: %d\n", (int) nleft, (int) nwritten);
+
     }
     return (n - nleft);    /* restituisce >= 0 */
 }

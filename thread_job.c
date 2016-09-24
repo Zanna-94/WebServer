@@ -105,12 +105,15 @@ void convert_and_send(data_t *data, char *path) {
     file_tmp = find_in_cache(img);
     if (file_tmp == NULL) {
         /* file not found in cache */
+//        printf("%s\n", "FILE not fount in cache...image conversion");
 
         fd = convert_image(img);
         put_in_cache(img);
 
     } else {
         /* file found in cache */
+//        printf("%s\n", "FILE found in cache. Skip conversion");
+
         /* build image path */
         strcpy(path, ROOT());
         strcat(path, CACHE);
@@ -118,6 +121,7 @@ void convert_and_send(data_t *data, char *path) {
 
         fd = open_file(path);
         if (fd == -1) {
+//           printf("%s\n", "cache is in a inconsisten state...");
             /* cache is in a inconsistent state. temp_file not exist really */
             fd = convert_image(img);
             put_in_cache(img);
@@ -159,6 +163,9 @@ void manage_request(data_t *data, unsigned int method) {
                     content_length = send_ok(fd, data->sock);
 
                     data->log->bytes = content_length;
+                    data->log->status = 200;
+                    logging(data->log);
+                    return;
                 }
 
                 if (isImage(filename))
@@ -218,6 +225,7 @@ void *connection_manager(void *arg) {
     char raw_msg[MSG_SIZE + 1];
     struct timeval timeout;
 
+    /* register function to call at exit */
     pthread_cleanup_push(th_exit, NULL) ;
 
             do {
@@ -228,7 +236,7 @@ void *connection_manager(void *arg) {
 
                 /* if no message are received in timeout seconds, the connection is closed */
                 if (select(data->sock + 1, &rset, NULL, NULL, &timeout) == 0) {
-                    printf("[*] Client sends not data: Connection closed\n");
+//                    printf("[*] Client sends not data: Connection closed\n");
                     close_connection(data->sock);
                     free_resources(data);
                     pthread_exit((void *) 0);

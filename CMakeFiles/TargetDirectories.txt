@@ -1,0 +1,3 @@
+/home/emanuele/Scrivania/WebServer/CMakeFiles/edit_cache.dir
+/home/emanuele/Scrivania/WebServer/CMakeFiles/rebuild_cache.dir
+/home/emanuele/Scrivania/WebServer/CMakeFiles/server.dir

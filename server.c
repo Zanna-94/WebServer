@@ -10,6 +10,11 @@ pthread_t tid[THREAD_LIMIT];
 
 pid_t child_make(int, int);
 
+/**
+ * Get shared memory for thread count var.
+ * The variable allocated is incremented each time that a new
+ * thread is started and decremented when it call pthread_exit
+ */
 void thread_count_init() {
 
     int shm_id;
@@ -40,8 +45,9 @@ void thread_count_init() {
 
 }
 
-/*
- * On thread exit, update vars that count number of active threads
+/**
+ * This function is called on pthread_exit. Decrementing thread count variable
+ * @param arg not used
  */
 void th_exit(void *arg) {
 
@@ -54,7 +60,7 @@ void th_exit(void *arg) {
     pthread_mutex_unlock(mtx);
 }
 
-/*
+/**
  * allocate shared memory for pids.
  */
 void process_count_init() {
@@ -76,6 +82,7 @@ void process_count_init() {
 
 /**
  * Allocate memory for thread custom data
+ * @return data structure containing useful var for thread
  */
 data_t *allocate_data_t() {
 
@@ -99,6 +106,11 @@ data_t *allocate_data_t() {
     return data;
 }
 
+/**
+ * Create a new thread. Each thread handles a connection with client
+ * @param socket
+ * @param cliaddr
+ */
 void create_thread(int socket, struct sockaddr_in *cliaddr) {
 
     data_t *data = allocate_data_t();
@@ -121,11 +133,11 @@ void create_thread(int socket, struct sockaddr_in *cliaddr) {
 
 }
 
-/*
+/**
  * Create new child process if server load is too high
  *
- * @return number of created process.
- * A negative result indicates that children have to be deleted
+ * @param listsck linening socket
+ * @return number of process forked. A negative result indicates that there are too children
  */
 int ctrl_load(int listsck) {
 
@@ -148,6 +160,7 @@ int ctrl_load(int listsck) {
 
             pids[(*process_count)] = child_make((*process_count), listsck);
             (*process_count)++;
+            printf("[+] fork another process! #process: %d \n", *process_count);
         }
     }
 
@@ -155,8 +168,10 @@ int ctrl_load(int listsck) {
     return tocreate;
 }
 
-/*
- * Test if i-th process have to exit
+/**
+ * Test if i-th process have to terminate
+ *
+ * @param process number
  * @return 1 mean that process have to exit. 0 if the process have to live
  */
 int im_wasteful(int i) {
@@ -170,6 +185,12 @@ int im_wasteful(int i) {
     return 0;
 };
 
+/**
+ * Main function for each forked process
+ *
+ * @param i process'number
+ * @param listensd listening socket
+ */
 void child_main(int i, int listensd) {
 
     int connsd;                     /* connection socket */
@@ -221,6 +242,7 @@ void child_main(int i, int listensd) {
 
                 bsem_put(semid);
 
+                printf("[-] process number %d termination\n", i);
                 exit(EXIT_SUCCESS);
             }
 
@@ -251,6 +273,13 @@ void child_main(int i, int listensd) {
     }
 }
 
+/**
+ * fork a new process
+ *
+ * @param i process' number
+ * @param listensd listening socket
+ * @return pid of forked process
+ */
 pid_t child_make(int i, int listensd) {
     pid_t pid;
 
@@ -281,13 +310,6 @@ int main(int argc, char **argv) {
         case (2) :
             // use specified number of helper
             children_n = atoi(argv[1]);
-            /* if number is not between 1 and 8 */
-            if (children_n < 1 || children_n > 8) {
-                printf("Insert a number of children between 1 and 8.\n"
-                               "Usage : ./server <helper number> <port number[xxxx]>");
-                exit(EXIT_FAILURE);
-            }
-
             // if not specified, use default port
             port_n = SERV_PORT;
             break;
@@ -297,6 +319,7 @@ int main(int argc, char **argv) {
             children_n = atoi(argv[1]);
             /* use specified port   */
             port_n = (in_port_t) atoi(argv[2]);
+
             break;
 
         default:
@@ -304,15 +327,22 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
     }
 
+    /* if number is not between 1 and 8 */
+    if (children_n < START_SERVER || children_n > SERVER_LIMIT) {
+        printf("Insert a number of children between 1 and 8.\n"
+                       "Usage : ./server <helper number> <port number[xxxx]>\n");
+        exit(EXIT_FAILURE);
+    }
+
     /* Listen socket for TCP connection */
     if ((listensd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("socket can't be created");
+        perror("socket can't be created\n");
         exit(EXIT_FAILURE);
     }
 
     /* if the port is busy and in the TIME_WAIT state, go ahead and reuse it anyway. */
     if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, &(int) {1}, sizeof(int)) < 0)
-        perror("setsockopt(SO_REUSEADDR) failed");
+        perror("setsockopt(SO_REUSEADDR) failed\n");
 
     /* IP socket address defined as a combination of an IP interface address and a 16-bit port number*/
     memset((void *) &servaddr, 0, sizeof(servaddr));
@@ -360,7 +390,7 @@ int main(int argc, char **argv) {
     printf("SERVER START!\n");
     for (;;) {
         ctrl_load(listensd);
-        sleep(1);    /* fanno tutto i processi figli */
+        usleep(500000);
     }
 
 }

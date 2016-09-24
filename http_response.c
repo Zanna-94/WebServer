@@ -98,6 +98,8 @@ int send_ok(int fd, int sock) {
     char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
     int sent, content_length = find_content_length(fd);
 
+    printf("start sending msgn\n");
+
     sprintf(response, "%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK",
             "Server: ZannaServer", get_date_line(), LastModified_line(fd),
             "Connection: close", "Content-Length", content_length);
@@ -108,14 +110,19 @@ int send_ok(int fd, int sock) {
     /* send headers*/
     sent = (int) writen(sock, response, strlen(response));
     if (sent <= 0) {
-        fprintf(stderr, "error in writen\n");
+        fprintf(stderr, "error in writen sending header\n");
     }
+
+    printf("header sent\n");
+
 
     /* send file as body */
     sent = (int) writen(sock, mapped_file, (size_t) content_length);
     if (sent <= 0) {
-        fprintf(stderr, "error in writen\n");
+        fprintf(stderr, "error in writen sending body cl: %d\n", content_length);
     }
+
+    printf("body sent\n");
 
     if (munmap(mapped_file, (size_t) content_length) == -1) {
         perror("munmap");
