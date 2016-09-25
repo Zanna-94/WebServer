@@ -24,7 +24,7 @@
 #define BACKLOG         10
 #define TIMEOUT         1
 
-#define START_SERVER    2
+#define START_SERVER    1
 #define SERVER_LIMIT    16
 #define THREAD_LIMIT    16
 

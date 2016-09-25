@@ -2,6 +2,9 @@
 #include <errno.h>
 #include "logging.h"
 
+/**
+ * Initialize logging
+ */
 void init_log() {
 
     setlogmask(LOG_UPTO(LOG_INFO));
@@ -10,6 +13,10 @@ void init_log() {
     return;
 }
 
+/**
+ * Get date according to common log format
+ * @return current date
+ */
 char *get_date() {
     time_t current_time;
     char *c_time_string;
@@ -37,7 +44,10 @@ char *get_date() {
     return c_time_string;
 }
 
-
+/**
+ * Write log on file
+ * @param log strcture containing all log info
+ */
 void logging(log_t *log) {
 
     char *date = get_date();

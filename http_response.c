@@ -58,8 +58,10 @@ unsigned int find_content_length(int fd) {
     return (unsigned int) st.st_size;
 }
 
-/*
+/**
  * send http message with error code 404 (file not found)
+ * @param sock connection socket to use
+ * @return size of sent body
  */
 int send_not_found(int sock) {
 
@@ -86,19 +88,17 @@ int send_not_found(int sock) {
     return (int) strlen(html);
 }
 
-/*
+/**
  * Send an http response message with status code 200 OK.
  *
- * @fd file descriptor for the file to send as body
- * @sock connection socket with the client node
- * @content_length size of the file to send
+ * @param fd file descriptor for the file to send as body
+ * @param sock connection socket with the client node
+ * @return content_length size of the file to send
  */
 int send_ok(int fd, int sock) {
 
     char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
     int sent, content_length = find_content_length(fd);
-
-    printf("start sending msgn\n");
 
     sprintf(response, "%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s: %d\r\n\r\n", "HTTP/1.1 200 OK",
             "Server: ZannaServer", get_date_line(), LastModified_line(fd),
@@ -113,16 +113,12 @@ int send_ok(int fd, int sock) {
         fprintf(stderr, "error in writen sending header\n");
     }
 
-    printf("header sent\n");
-
 
     /* send file as body */
     sent = (int) writen(sock, mapped_file, (size_t) content_length);
     if (sent <= 0) {
         fprintf(stderr, "error in writen sending body cl: %d\n", content_length);
     }
-
-    printf("body sent\n");
 
     if (munmap(mapped_file, (size_t) content_length) == -1) {
         perror("munmap");
@@ -138,9 +134,9 @@ int send_ok(int fd, int sock) {
     return content_length;
 }
 
-/*
+/**
  * Send http response message with status code 204 No Content
- *
+ * @param sock connection socket
  */
 void send_no_content(int sock) {
     char *response;
@@ -161,6 +157,10 @@ void send_no_content(int sock) {
     free(response);
 }
 
+/**
+ * Send header on '200 OK' status code response
+ * @param sock
+ */
 void send_ok_head(int sock) {
 
     char response[MSG_SIZE], *mapped_file;   /* memory where map the file */
@@ -170,6 +170,10 @@ void send_ok_head(int sock) {
             get_date_line(), "Connection: close");
 }
 
+/**
+ * Send header on not found resource
+ * @param sock
+ */
 void send_not_found_head(int sock) {
 
     char *response;

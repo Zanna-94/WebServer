@@ -160,7 +160,6 @@ int ctrl_load(int listsck) {
 
             pids[(*process_count)] = child_make((*process_count), listsck);
             (*process_count)++;
-            printf("[+] fork another process! #process: %d \n", *process_count);
         }
     }
 
@@ -225,14 +224,18 @@ void child_main(int i, int listensd) {
 
     for (;;) {
 
-        /* Needs to not block on accept. If the server creates many children for the
-        * high load, then the children are not destroyed because the main thread is
-        * blocked on the accept. */
-        while (poll(&pfd, 1, 1) == 0) {
+        if (thread_limit < THREAD_LIMIT) {
 
-            bsem_get(semid);
+            /* it will contains length of sockaddr structure */
+            int clilen = sizeof(struct sockaddr_in);
 
-            /* Test if process has reason to exist */
+            my_lock_wait();
+
+
+            /*
+             * Test if there are still enough connections or if the current process
+             * wastes resource and have to exit.
+             */
             if (i > children_n && im_wasteful(i)) {
                 int n;
                 for (n = 0; n < thread_limit; n++)
@@ -240,24 +243,11 @@ void child_main(int i, int listensd) {
 
                 (*process_count)--;
 
-                bsem_put(semid);
-
-                printf("[-] process number %d termination\n", i);
+                my_lock_release();
                 exit(EXIT_SUCCESS);
             }
 
-            bsem_put(semid);
-
-        }
-
-        if (thread_limit < THREAD_LIMIT) {
-
-            /* it will contains length of sockaddr structure */
-            int clilen = sizeof(struct sockaddr_in);
-
-            /* obtaining lock */
-            my_lock_wait();
-
+            /* accept connection */
             if ((connsd = accept(listensd, (struct sockaddr *) cliaddr, (socklen_t *) &clilen)) < 0) {
                 perror("accept");
                 exit(EXIT_FAILURE);
@@ -271,6 +261,7 @@ void child_main(int i, int listensd) {
         }
 
     }
+
 }
 
 /**
@@ -390,7 +381,7 @@ int main(int argc, char **argv) {
     printf("SERVER START!\n");
     for (;;) {
         ctrl_load(listensd);
-        usleep(500000);
+        usleep(500);
     }
 
 }

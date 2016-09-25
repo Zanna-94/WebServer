@@ -1,5 +1,9 @@
 #include "thread_job.h"
 
+/**
+ * free resource on exit
+ * @param data resource to free
+ */
 void free_resources(data_t *data) {
 
     free(data->msg);
@@ -7,6 +11,10 @@ void free_resources(data_t *data) {
     free(data);
 }
 
+/**
+ * close connection with specified socket
+ * @param sock
+ */
 void close_connection(int sock) {
 
     int closed = close(sock);
@@ -17,7 +25,8 @@ void close_connection(int sock) {
 
 }
 
-/*
+/**
+ * Convert image according to qualityf actor
  *
  * @param path image path
  * @param quality_factor new quality compression factor for the image
@@ -82,6 +91,10 @@ int convert_image(converted_image *img) {
     return fd;
 }
 
+/**
+ * @param data thread data
+ * @param path file to convert
+ */
 void convert_and_send(data_t *data, char *path) {
 
     char *format;
@@ -137,8 +150,10 @@ void convert_and_send(data_t *data, char *path) {
     data->log->bytes = content_length;
 }
 
-/*
+/**
  * Manage the connection with a client.
+ * @param data thread data
+ * @param method request method (GET or HEAD)
  */
 void manage_request(data_t *data, unsigned int method) {
 
@@ -213,8 +228,8 @@ void manage_request(data_t *data, unsigned int method) {
     logging(data->log);
 }
 
-/*
- * Receive the request message and parses it.
+/**
+ * Receive the request message and parses it. It is the main function for thread
  */
 void *connection_manager(void *arg) {
 
@@ -228,45 +243,42 @@ void *connection_manager(void *arg) {
     /* register function to call at exit */
     pthread_cleanup_push(th_exit, NULL) ;
 
-            do {
+            timeout.tv_sec = TIMEOUT;
+            FD_ZERO(&rset);
+            FD_SET(data->sock, &rset);
 
-                timeout.tv_sec = TIMEOUT;
-                FD_ZERO(&rset);
-                FD_SET(data->sock, &rset);
-
-                /* if no message are received in timeout seconds, the connection is closed */
-                if (select(data->sock + 1, &rset, NULL, NULL, &timeout) == 0) {
+            /* if no message are received in timeout seconds, the connection is closed */
+            if (select(data->sock + 1, &rset, NULL, NULL, &timeout) == 0) {
 //                    printf("[*] Client sends not data: Connection closed\n");
-                    close_connection(data->sock);
-                    free_resources(data);
-                    pthread_exit((void *) 0);
-                }
+                close_connection(data->sock);
+                free_resources(data);
+                pthread_exit((void *) 0);
+            }
 
-                /* read http header from connsd socket and store it in msg buffer */
-                memset(raw_msg, '\0', MAXLINE);
-                nread = receive_msg_h(data->sock, raw_msg);
-                if (nread == 0) {
-                    // connection closed from client side
-                    pthread_exit((void *) 1);
-                }
+            /* read http header from connsd socket and store it in msg buffer */
+            memset(raw_msg, '\0', MAXLINE);
+            nread = receive_msg_h(data->sock, raw_msg);
+            if (nread == 0) {
+                // connection closed from client side
+                pthread_exit((void *) 1);
+            }
 
-                printf("%s\n\n", raw_msg);
-                fflush(stdout);
+//                printf("%s\n\n", raw_msg);
+//                fflush(stdout);
 
-                /* parsing http header */
-                parser = parse(data, raw_msg, strlen(raw_msg));
-                if (parser == NULL) {
-                    fprintf(stderr, "parse return NULL: parsing error\n");
-                    pthread_exit((void *) 1);
-                }
+            /* parsing http header */
+            parser = parse(data, raw_msg, strlen(raw_msg));
+            if (parser == NULL) {
+                fprintf(stderr, "parse return NULL: parsing error\n");
+                pthread_exit((void *) 1);
+            }
 
-                data->log->request = get_request(raw_msg);
+            data->log->request = get_request(raw_msg);
 
-                /* For HTTP/1.1 persistent connection is the default behavior*/
-                if (parser->type == HTTP_REQUEST)
-                    manage_request(data, parser->method);
+            /* For HTTP/1.1 persistent connection is the default behavior*/
+            if (parser->type == HTTP_REQUEST)
+                manage_request(data, parser->method);
 
-            } while (http_should_keep_alive(parser));
 
             close_connection(data->sock);
             free_resources(data);

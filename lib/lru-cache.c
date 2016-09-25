@@ -4,7 +4,10 @@ node *my_head = NULL;
 int *num_of_elements = NULL;
 pthread_mutex_t *mtx;
 
-
+/**
+ * Get cache shared memory
+ * @return pointer to memory
+ */
 void *get_cache() {
 
     node *ptr = NULL;
@@ -67,6 +70,9 @@ void *get_cache() {
     return my_head;
 }
 
+/**
+ * @return last node in dynamic list
+ */
 node *get_last() {
 
     struct node *ptr;
@@ -76,7 +82,7 @@ node *get_last() {
 
 }
 
-/*
+/**
  * fail if get_cache is not called before
  */
 void put_in_cache(converted_image *img) {
@@ -133,7 +139,10 @@ void put_in_cache(converted_image *img) {
     }
 }
 
-
+/**
+ * Move a node from its position to head
+ * @param pnode node to move
+ */
 void move_to_head(node *pnode) {
 
     node *ptr;
@@ -158,6 +167,11 @@ void move_to_head(node *pnode) {
     my_head = ptr;
 }
 
+/**
+ * search an element in the cache
+ * @param img element to find
+ * @return the element found or NULL
+ */
 char *find_in_cache(converted_image *img) {
 
     node *ptr = NULL;

@@ -25,6 +25,9 @@ Sigfunc *signal(int signum, Sigfunc *func) {
     return (oact.sa_handler);
 }
 
+/**
+ * kill al process on SIGTERM signal
+ */
 void sig_int() {
     int i;
 
